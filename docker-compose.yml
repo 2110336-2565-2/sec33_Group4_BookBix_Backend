@@ -1,0 +1,37 @@
+services:
+  nest-app:
+    build: .
+    command: npm run start:dev
+    volumes:
+      - ./test:/usr/src/app/test
+      - ./src:/usr/src/app/src
+      - /usr/src/app/node_modules
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    environment:
+      MONGODB_DBURL: mongodb://root:password@db:27017/bookbix?authSource=bookbix
+      MONGODB_DBNAME: bookbix
+      NODE_ENV: development
+      PORT: 3000
+    networks:
+      - backbone
+  db:
+    image: mongo:4.2.3
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/db:/data/db
+    environment:
+      PORT: 27017
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: bookbix
+    networks:
+      - backbone
+networks:
+  backbone:
+    driver: bridge

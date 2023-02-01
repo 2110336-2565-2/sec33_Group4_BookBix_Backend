@@ -1,0 +1,14 @@
+# Node stuff
+node_modules
+
+# Docker stuff
+docker-compose.yml
+.dockerignore
+Dockerfile
+
+# Readme files
+README.md
+
+# Git stuff
+.gitignore
+.git
