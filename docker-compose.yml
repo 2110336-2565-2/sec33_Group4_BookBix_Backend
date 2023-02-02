@@ -9,13 +9,13 @@ services:
     depends_on:
       - db
     ports:
-      - "3000:3000"
+      - "${CLIENT_PORT}:${SERVER_PORT}"
     restart: unless-stopped
     environment:
-      MONGODB_DBURL: mongodb://root:password@db:27017/bookbix?authSource=bookbix
-      MONGODB_DBNAME: bookbix
-      NODE_ENV: development
-      PORT: 3000
+      MONGODB_DBURL: mongodb://${MONGO_INITDB_USER}:${MONGO_INITDB_PWD}@db:27017/${MONGO_INITDB_DATABASE}?authSource=${MONGO_INITDB_DATABASE}
+      MONGODB_DBNAME: ${MONGO_INITDB_DATABASE}
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${SERVER_PORT}
     networks:
       - backbone
   db:
@@ -26,10 +26,11 @@ services:
     volumes:
       - ./data/db:/data/db
     environment:
-      PORT: 27017
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
-      MONGO_INITDB_DATABASE: bookbix
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+      MONGO_INITDB_USERNAME: ${MONGO_INITDB_USER}
+      MONGO_INITDB_PASSWORD: ${MONGO_INITDB_PWD}
     networks:
       - backbone
 networks:
