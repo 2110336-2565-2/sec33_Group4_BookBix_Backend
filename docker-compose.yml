@@ -19,18 +19,19 @@ services:
     networks:
       - backbone
   db:
-    image: mongo:4.2.3
+    image: mongo:4.0.2
     restart: unless-stopped
     ports:
       - "27017:27017"
-    volumes:
-      - ./data/db:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
       MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
       MONGO_INITDB_USERNAME: ${MONGO_INITDB_USER}
       MONGO_INITDB_PASSWORD: ${MONGO_INITDB_PWD}
+    volumes:
+      - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
+      - ./data/db:/data/db
     networks:
       - backbone
 networks:
