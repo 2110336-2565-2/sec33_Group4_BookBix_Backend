@@ -9,27 +9,29 @@ services:
     depends_on:
       - db
     ports:
-      - "3000:3000"
+      - "${CLIENT_PORT}:${SERVER_PORT}"
     restart: unless-stopped
     environment:
-      MONGODB_DBURL: mongodb://root:password@db:27017/bookbix?authSource=bookbix
-      MONGODB_DBNAME: bookbix
-      NODE_ENV: development
-      PORT: 3000
+      MONGODB_DBURL: mongodb://${MONGO_INITDB_USER}:${MONGO_INITDB_PWD}@db:27017/${MONGO_INITDB_DATABASE}?authSource=${MONGO_INITDB_DATABASE}
+      MONGODB_DBNAME: ${MONGO_INITDB_DATABASE}
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${SERVER_PORT}
     networks:
       - backbone
   db:
-    image: mongo:4.2.3
+    image: mongo:4.0.2
     restart: unless-stopped
     ports:
       - "27017:27017"
-    volumes:
-      - ./data/db:/data/db
     environment:
-      PORT: 27017
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
-      MONGO_INITDB_DATABASE: bookbix
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+      MONGO_INITDB_USERNAME: ${MONGO_INITDB_USER}
+      MONGO_INITDB_PASSWORD: ${MONGO_INITDB_PWD}
+    volumes:
+      - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
+      - ./data/db:/data/db
     networks:
       - backbone
 networks:
