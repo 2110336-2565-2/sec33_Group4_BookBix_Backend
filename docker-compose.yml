@@ -1,7 +1,7 @@
+version: '3'
 services:
   nest-app:
     build: .
-    command: npm run start:dev
     volumes:
       - ./test:/usr/src/app/test
       - ./src:/usr/src/app/src
@@ -22,7 +22,7 @@ services:
     image: mongo:4.0.2
     restart: unless-stopped
     ports:
-      - "27017:27017"
+      - "${DB_CLIENT_PORT}:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}

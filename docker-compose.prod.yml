@@ -1,0 +1,11 @@
+version: '3'
+services:
+  nest-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.Prod
+    image: s1xz/bookbix-backend:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - SERVER_PORT=3000
