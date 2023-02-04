@@ -1,4 +1,4 @@
-db.customers.insertMany(
+db.customers.insertMany([
   {
     _id: ObjectId('000000000001000000000001'),
     firstname: 'John',
@@ -54,4 +54,4 @@ db.customers.insertMany(
     email: 'davidw87@gmail.com',
     date_created: '2022-10-20T09:00:00.000Z',
   },
-);
+]);

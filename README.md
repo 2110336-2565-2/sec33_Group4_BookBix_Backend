@@ -2,14 +2,14 @@
 
 ### Development Setups
 
-##### Docker up
-```bash
-docker-compose up -d --build && docker rmi $(docker images -f “dangling=true” -q)
+##### Powershell users
+```powershell
+./docker.ps1
 ```
 
-##### Docker down
+##### Bash users
 ```bash
-docker-compose down -v
+./docker.sh
 ```
 
 Current tech list
