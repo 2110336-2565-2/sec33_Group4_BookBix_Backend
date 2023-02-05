@@ -1,0 +1,7 @@
+version: '3'
+services:
+  nest-app:
+    build:
+      context: ../.
+      dockerfile: ./production/Dockerfile
+    image: s1xz/bookbix-backend:latest
