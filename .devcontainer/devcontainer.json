@@ -1,0 +1,28 @@
+{
+    "name": "Bookbix_Backend",
+    "customizations": {
+        // Configure properties specific to VS Code.
+        "vscode": {
+            // Add the IDs of extensions you want installed when the container is created.
+            "extensions": [
+                "mongodb.mongodb-vscode",
+                "mikestead.dotenv",
+                "GitHub.codespaces",
+                "GitHub.remotehub",
+                "xabikos.JavaScriptSnippets",
+                "donjayamanne.git-extension-pack",
+                "GitHub.copilot",
+                "GitHub.vscode-pull-request-github",
+                "esbenp.prettier-vscode",
+                "ms-vscode-remote.remote-containers",
+                "aaron-bond.better-comments",
+                "formulahendry.auto-rename-tag"
+            ]
+        }
+    },
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": "..",
+    },
+    "remoteUser": "root"
+}

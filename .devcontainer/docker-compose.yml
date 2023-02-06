@@ -1,0 +1,10 @@
+version: '3'
+services:
+  devcontainer-nest-app:
+    build:
+      context: ../.
+      dockerfile: ./.devcontainer/Dockerfile
+    volumes:
+      - ../test:./src/app/test
+      - ../src:./src/app/src
+      - ../usr/src/app/node_modules
