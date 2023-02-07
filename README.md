@@ -17,5 +17,8 @@ Current tech list
 - Mongodb
 - Docker
 
-
+##### Starting Your Application in Development Mode
+```
+npm run start:dev
+```
 # !! DO NOT TOUCH DOCKER FILE !!
