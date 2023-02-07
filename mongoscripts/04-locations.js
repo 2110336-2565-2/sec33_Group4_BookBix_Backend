@@ -24,6 +24,19 @@ db.locations.insertMany([
         text: "I love visiting CU Centenary Park, it's a must-see destination in Bangkok.",
       },
     ],
+    time: {
+      open_time: '10:30',
+      close_time: '18:00',
+    },
+    available_days: [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ],
   },
   {
     _id: ObjectId('000000000004000000000002'),
@@ -49,6 +62,8 @@ db.locations.insertMany([
         text: 'An iconic landmark of Paris. Must-visit when in the city.',
       },
     ],
+    time: { open_time: '08:00', close_time: '16:00' },
+    available_days: ['Monday', 'Wednesday', 'Friday', 'Sunday'],
   },
   {
     _id: ObjectId('000000000004000000000003'),
@@ -74,6 +89,8 @@ db.locations.insertMany([
         text: 'Fantastic view from the river. Highly recommend taking a river cruise.',
       },
     ],
+    time: { open_time: '10:00', close_time: '16:00' },
+    available_days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
   },
   {
     _id: ObjectId('000000000004000000000004'),
@@ -98,5 +115,7 @@ db.locations.insertMany([
         text: "One of the best parks I've ever been to. So much to do and see!",
       },
     ],
+    time: { open_time: '10:00', close_time: '16:00' },
+    available_days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
   },
 ]);
