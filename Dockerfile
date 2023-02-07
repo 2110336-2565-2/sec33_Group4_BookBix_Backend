@@ -1,7 +1,8 @@
-# Development image
 
-FROM node:18.13.0-bullseye-slim as development
+# FROM node:18.13.0-bullseye-slim as development
 
+#  mcr.microsoft.com is Development image use for ease of development (need to change later)
+FROM mcr.microsoft.com/devcontainers/javascript-node:0-18 as development 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
