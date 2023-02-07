@@ -1,7 +1,9 @@
 version: '3'
 services:
   nest-app:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - ./test:/usr/src/app/test
       - ./src:/usr/src/app/src
