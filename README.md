@@ -26,14 +26,15 @@ Before starting local development, it is required to have Node.js installed in y
     
 2. Open the cloned repository in Visual Studio Code 
  
-3. Click the "Remote-Containers: Open Folder in Container" command in the Command Palette (press `F1` to open the Command Palette) 
+3. Copy contents of `.env.template` to a new file named `.env`  (if you not doing this the next step will be error)
+
+4. Click the "Remote-Containers: Open Folder in Container" command in the Command Palette (press `F1` to open the Command Palette) 
  
-4. Wait for the container to start and for the application to be installed 
- 
-5. Copy contents of `.env.template` to a new file named `.env` 
+5. Wait for the container to start and for the application to be installed 
  
 6. Run the following command: `nest start` The application will start in development mode, allowing you to make code changes and see the results in real-time. 
   
+7. if you want to use git you need to use this command first `git config --global --add safe.directory /workspaces/sec33_Group4_BookBix_Backend` (and the vscode will suggest you to Manage Unsafe Repositories to use git in vscode)
  
  
 ### Tech Stack 
