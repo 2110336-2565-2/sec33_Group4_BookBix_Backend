@@ -1,25 +1,25 @@
 import { Injectable, NotAcceptableException } from '@nestjs/common';
-import { UsersService } from 'src/users/users.service';
+import { CustomersService } from "src/customers/customers.service";
 import * as bcrypt from 'bcrypt';
 
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly customerService: CustomersService) {}
 
   //validate a user
-  async validateUser(username: string, password: string): Promise<any> {
-    const user = await this.usersService.getUser(username);
-    const passwordValid = await bcrypt.compare(password, user.password)
+  async validateCustomer(username: string, password: string): Promise<any> {
+    const customer = await this.customerService.getCustomer(username);
+    const passwordValid = await bcrypt.compare(password, customer.password)
 
-    if (!user) {
+    if (!customer) {
         throw new NotAcceptableException('could not find the user');
       }
 
-    if (user && passwordValid) {
+    if (customer && passwordValid) {
       return {
-        userId: user.id,
-        userName: user.username
+        customerId: customer.id,
+        userName: customer.username
       };
     }
 

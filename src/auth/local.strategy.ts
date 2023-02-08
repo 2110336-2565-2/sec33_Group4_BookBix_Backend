@@ -12,7 +12,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   async validate(username: string, password: string): Promise<any> {
     //change username to lower case
     const userName = username.toLowerCase();
-    const user = await this.authService.validateUser(userName, password);
+    const user = await this.authService.validateCustomer(userName, password);
 
     if (!user) {
       throw new UnauthorizedException();
