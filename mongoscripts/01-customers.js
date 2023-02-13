@@ -9,6 +9,7 @@ db.customers.insertMany([
     password: '$2a$10$RkOg8y4M7Y4YwF1jKqx3We9t9oZtBHJ/L7WQ2j/F0TdT6/vbN/jW6', //Hased with bcrypt
     email: 'johndoe85@gmail.com',
     date_created: '2022-12-01T10:00:00.000Z', //Stored in ISO format
+    latest_device: 'WINDOWS - CHROME',
   },
   {
     _id: ObjectId('000000000001000000000002'),
@@ -20,6 +21,7 @@ db.customers.insertMany([
     password: '$2a$10$Q8zvAVL7leYOLYsT1TtfWuCsxvKjbAwhru9obE7WbIt.PAiT/TdwG',
     email: 'janesmith90@gmail.com',
     date_created: '2022-11-15T11:30:00.000Z',
+    latest_device: 'WINDOWS - CHROME',
   },
   {
     _id: ObjectId('000000000001000000000003'),
@@ -31,6 +33,7 @@ db.customers.insertMany([
     password: '$2a$10$yJAKLf0B7Vr3JqLh7VkFwOY/z2Ldpj/NddzR7Np1xn9fNrNn3ZklO',
     email: 'michaelj95@gmail.com',
     date_created: '2022-10-20T09:00:00.000Z',
+    latest_device: 'WINDOWS - CHROME',
   },
   {
     _id: ObjectId('000000000001000000000004'),
@@ -42,6 +45,7 @@ db.customers.insertMany([
     password: '$2a$10$1eRKMhkm6X9.7fa.dOZO3.eBh3a8V7PkHvT/0StgKp6U9V7UHx6P2',
     email: 'emilybrown92@gmail.com',
     date_created: '2022-09-10T14:00:00.000Z',
+    latest_device: 'WINDOWS - CHROME',
   },
   {
     _id: ObjectId('000000000001000000000005'),
@@ -53,5 +57,6 @@ db.customers.insertMany([
     password: '$2a$10$A/hv0QP7oOAbBf8XGjx0vC.Zg0fLqa/N/7VuU.NgN7VJTfz9U6/sW',
     email: 'davidw87@gmail.com',
     date_created: '2022-10-20T09:00:00.000Z',
+    latest_device: 'WINDOWS - CHROME',
   },
 ]);

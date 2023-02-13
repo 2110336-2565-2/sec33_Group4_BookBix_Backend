@@ -10,7 +10,7 @@ export class CustomersService {
   ) {}
 
   //Signup new customer with username, password and other
-    async insertNewCustomer(firstname: string, lastname: string, sex: string, birthdate: string, username: string, password: string, email: string, date_created: string) {
+    async insertNewCustomer(firstname: string, lastname: string, sex: string, birthdate: string, username: string, password: string, email: string, date_created: string,latest_device:string) {
     const usernameLower = username.toLowerCase();
     const newCustomer = new this.customerModel({
       firstname,
@@ -20,7 +20,8 @@ export class CustomersService {
       username,
       password,
       email,
-      date_created
+      date_created,
+      latest_device,
     });
     await newCustomer.save();
     return newCustomer;

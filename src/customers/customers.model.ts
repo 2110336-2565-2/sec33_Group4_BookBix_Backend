@@ -9,6 +9,7 @@ export interface Customer extends Document {
     password: string;
     email: string;
     date_created: string;
+    latest_device: string;
 }
 
 export const CustomerSchema = new Schema({
@@ -39,6 +40,9 @@ export const CustomerSchema = new Schema({
     date_created: {
         type: String,
         required: true,
+    },
+    latest_device: {
+        type: String,
     },
 });
 
