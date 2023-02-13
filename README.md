@@ -32,7 +32,7 @@ Before starting local development, it is required to have Node.js installed in y
  
 5. Wait for the container to start and for the application to be installed 
  
-6. Run the following command: `nest start` The application will start in development mode, allowing you to make code changes and see the results in real-time. 
+6. Run the following command: `nest start --watch` The application will start in development mode, allowing you to make code changes and see the results in real-time. 
   
 7. if you want to use git you need to use this command first `git config --global --add safe.directory /workspaces/sec33_Group4_BookBix_Backend` (and the vscode will suggest you to Manage Unsafe Repositories to use git in vscode)
  
