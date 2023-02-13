@@ -8,8 +8,9 @@ export class AuthService {
   constructor(private readonly customerService: CustomersService) {}
 
   //validate a user
-  async validateCustomer(username: string, password: string): Promise<any> {
-    const customer = await this.customerService.getCustomer(username);
+  async validateCustomer(email: string, password: string): Promise<any> {
+    const customer = await this.customerService.getCustomer(email);
+    console.log(customer);
     const passwordValid = await bcrypt.compare(password, customer.password)
 
     if (!customer) {
@@ -19,7 +20,7 @@ export class AuthService {
     if (customer && passwordValid) {
       return {
         customerId: customer.id,
-        userName: customer.username
+        email: customer.email
       };
     }
 

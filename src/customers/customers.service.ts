@@ -27,9 +27,8 @@ export class CustomersService {
   }
   
   //log in user using the findOne method
-  async getCustomer(userName: string) {
-    const username = userName.toLowerCase();
-    const customer = await this.customerModel.findOne({ username });
+  async getCustomer(email: string) {
+    const customer = await this.customerModel.findOne({ email });
     return customer;
   }
 }

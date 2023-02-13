@@ -31,11 +31,11 @@ export class CustomersController {
     const hashedPassword = await bcrypt.hash(password, saltOrRounds);
     const now = new Date();
     const result = await this.customerService.insertNewCustomer(
-      undefined, //firstname
-      undefined, //lastname
-      undefined, // sex
-      undefined , // birthdate
-      undefined , //username
+      "", //firstname
+      "", //lastname
+      "", // sex
+      "" , // birthdate
+      "", //username
       hashedPassword,
       email,
       now.toString(),
@@ -45,13 +45,14 @@ export class CustomersController {
       msg: 'Customer successfully registered',
       customerId: result.id,
       customerEmail: result.email,
+      customerUsername: result.username,
     };
   }
 
   @UseGuards(LocalAuthGuard)
   @Post('/login')
   login(@Request() req): any {
-    return { Customer: req.customer, msg: 'Customer logged in' };
+    return {customer: req.customer, msg: 'Customer logged in' };
   }
 
 
