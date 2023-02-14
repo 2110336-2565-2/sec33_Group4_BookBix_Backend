@@ -38,6 +38,7 @@ export class CustomersController {
   @Post('/register')
   async addCustomer(
     @Request() req,
+    @Body('username') username: string,
     @Body('email') email: string,
     @Body('password') password: string,
   ) {
@@ -49,7 +50,7 @@ export class CustomersController {
       "", //lastname
       "", // sex
       "" , // birthdate
-      "", //username
+      username,
       hashedPassword,
       email,
       now.toString(),
