@@ -8,7 +8,7 @@ db.customers.insertMany([
     username: 'johndoe85',
     password: '$2a$12$rCMpOnOuZMulEy.SrzMH7.mx3gzWgwVh96EgIuKuvYXI7A.9SBJJK', //test123
     email: 'johndoe85@gmail.com',
-    date_created: '2022-12-01T10:00:00.000Z', //Stored in ISO format
+    date_created: new Date('2022-12-01T10:00:00.000Z'), //Stored in ISO format
     latest_device: 'WINDOWS - CHROME',
   },
   {
@@ -20,7 +20,7 @@ db.customers.insertMany([
     username: 'janesmith90',
     password: '$2a$12$rCMpOnOuZMulEy.SrzMH7.mx3gzWgwVh96EgIuKuvYXI7A.9SBJJK', //test123
     email: 'janesmith90@gmail.com',
-    date_created: '2022-11-15T11:30:00.000Z',
+    date_created: new Date('2022-11-15T11:30:00.000Z'),
     latest_device: 'WINDOWS - CHROME',
   },
   {
@@ -32,7 +32,7 @@ db.customers.insertMany([
     username: 'michaelj95',
     password: '$2a$12$rCMpOnOuZMulEy.SrzMH7.mx3gzWgwVh96EgIuKuvYXI7A.9SBJJK', //test123
     email: 'michaelj95@gmail.com',
-    date_created: '2022-10-20T09:00:00.000Z',
+    date_created: new Date('2022-10-20T09:00:00.000Z'),
     latest_device: 'WINDOWS - CHROME',
   },
   {
@@ -44,7 +44,7 @@ db.customers.insertMany([
     username: 'emilybrown92',
     password: '$2a$12$rCMpOnOuZMulEy.SrzMH7.mx3gzWgwVh96EgIuKuvYXI7A.9SBJJK', //test123
     email: 'emilybrown92@gmail.com',
-    date_created: '2022-09-10T14:00:00.000Z',
+    date_created: new Date('2022-09-10T14:00:00.000Z'),
     latest_device: 'WINDOWS - CHROME',
   },
   {
@@ -56,7 +56,7 @@ db.customers.insertMany([
     username: 'davidw87',
     password: '$2a$12$rCMpOnOuZMulEy.SrzMH7.mx3gzWgwVh96EgIuKuvYXI7A.9SBJJK', //test123
     email: 'davidw87@gmail.com',
-    date_created: '2022-10-20T09:00:00.000Z',
+    date_created: new Date('2022-10-20T09:00:00.000Z'),
     latest_device: 'WINDOWS - CHROME',
   },
-])
+]);

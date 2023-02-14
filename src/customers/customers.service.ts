@@ -1,16 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Customer } from "./customers.model";
+import { Customer } from './customers.model';
 
 @Injectable()
 export class CustomersService {
   constructor(
-    @InjectModel('customers') private readonly customerModel: Model<Customer> ,
+    @InjectModel('customers') private readonly customerModel: Model<Customer>,
   ) {}
 
   //Signup new customer with username, password and other
-    async insertNewCustomer(firstname: string, lastname: string, sex: string, birthdate: string, username: string, password: string, email: string, date_created: string,latest_device:string) {
+  async insertNewCustomer(
+    firstname: string,
+    lastname: string,
+    sex: string,
+    birthdate: string,
+    username: string,
+    password: string,
+    email: string,
+    date_created: Date,
+    latest_device: string,
+  ) {
     const usernameLower = username.toLowerCase();
     const newCustomer = new this.customerModel({
       firstname,
@@ -34,7 +44,7 @@ export class CustomersService {
     await customer.save();
     return customer;
   }
-  
+
   //log in user using the findOne method
   async getCustomer(email: string) {
     const customer = await this.customerModel.findOne({ email });

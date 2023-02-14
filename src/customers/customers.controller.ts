@@ -12,23 +12,29 @@ import * as bcrypt from 'bcrypt';
 import { AuthenticatedGuard } from 'src/auth/authenticated.guard';
 import { LocalAuthGuard } from 'src/auth/local.auth.guard';
 import { CustomersService } from './customers.service';
-import DeviceDetector = require("device-detector-js");
+import DeviceDetector = require('device-detector-js');
 
 const deviceDetector = new DeviceDetector();
-function getDevice(headers: {'user-agent': string }): string {
-  const userAgent = headers['user-agent']; 
+function getDevice(headers: { 'user-agent': string }): string {
+  const userAgent = headers['user-agent'];
   const result = deviceDetector.parse(userAgent);
   // console.log(JSON.stringify(result));
   if (!result.os) {
-    return "POSTMAN - " + JSON.stringify(result.client.name).toUpperCase().slice(1,-1);
+    return (
+      'POSTMAN - ' +
+      JSON.stringify(result.client.name).toUpperCase().slice(1, -1)
+    );
   }
-  return JSON.stringify(result.os.name).toUpperCase().slice(1,-1)+ ' - ' +JSON.stringify(result.client.name).toUpperCase().slice(1,-1);
+  return (
+    JSON.stringify(result.os.name).toUpperCase().slice(1, -1) +
+    ' - ' +
+    JSON.stringify(result.client.name).toUpperCase().slice(1, -1)
+  );
 }
 
 @Controller('customers')
 export class CustomersController {
   constructor(private readonly customerService: CustomersService) {}
-  
 
   @Get('/register')
   async renderRegisterPage(@Res() res) {
@@ -46,16 +52,15 @@ export class CustomersController {
     const hashedPassword = await bcrypt.hash(password, saltOrRounds);
     const now = new Date();
     const result = await this.customerService.insertNewCustomer(
-      "", //firstname
-      "", //lastname
-      "", // sex
-      "" , // birthdate
-      username,
+      '', //firstname
+      '', //lastname
+      '', // sex
+      '', // birthdate
+      username, //username
       hashedPassword,
       email,
-      now.toString(),
-      "",
-      
+      now,
+      '',
     );
 
     return {
@@ -70,14 +75,20 @@ export class CustomersController {
   @Post('/login')
   login(@Request() req): any {
     const latest_device = getDevice(req.headers);
-    if (req.customer.latest_device != latest_device && req.customer.latest_device != "") {
-      return {isLatestDevice: false};
+    if (
+      req.customer.latest_device != latest_device &&
+      req.customer.latest_device != ''
+    ) {
+      return { isLatestDevice: false };
     }
     // find the customer and update the latest device
     this.customerService.updateLatestDevice(req.customer.id, latest_device);
-    return {customer: req.customer, msg: 'Customer logged in', isLatestDevice: true};
+    return {
+      customer: req.customer,
+      msg: 'Customer logged in',
+      isLatestDevice: true,
+    };
   }
-
 
   @UseGuards(AuthenticatedGuard)
   @Get('/protected')
