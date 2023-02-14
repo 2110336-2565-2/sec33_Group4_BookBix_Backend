@@ -19,7 +19,7 @@ export class EmailService {
 
   async sendEmail(to: string, subject: string, body: string) {
     const mailOptions = {
-      from: 'Your Name <your-email@example.com>',
+      from: 'Bookbix solo20113@gmail.com',
       to,
       subject,
       html: body,
