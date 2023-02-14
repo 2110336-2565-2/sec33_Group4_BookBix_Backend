@@ -19,6 +19,7 @@ export class CustomersService {
     password: string,
     email: string,
     date_created: Date,
+    latest_device: string,
   ) {
     const usernameLower = username.toLowerCase();
     const newCustomer = new this.customerModel({
@@ -36,15 +37,14 @@ export class CustomersService {
     return newCustomer;
   }
 
-
   async updateLatestDevice(customerId: string, latest_device: string) {
     console.log(customerId);
     const customer = await this.customerModel.findById(customerId);
     customer.latest_device = latest_device;
-    return customer;
     await customer.save();
+    return customer;
   }
-  
+
   //log in user using the findOne method
   async getCustomer(email: string) {
     const customer = await this.customerModel.findOne({ email });
