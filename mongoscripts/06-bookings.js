@@ -7,4 +7,4 @@ db.bookings.insertMany([
     duration: 2,
     status: 'pending',
   },
-]);
+])

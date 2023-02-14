@@ -7,4 +7,4 @@ db.transactions.insertMany([
     status: 'pending',
     date_paid: null,
   },
-]);
+])
