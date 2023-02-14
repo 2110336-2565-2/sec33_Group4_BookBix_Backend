@@ -2,13 +2,14 @@ import { Schema, model, Document } from 'mongoose';
 
 export interface Customer extends Document {
   firstname: string;
-  lastname: string;
   sex: string;
+  lastname: string;
   birthdate: string;
   username: string;
   password: string;
   email: string;
-  date_created: string;
+  latest_device: string;
+  date_created: Date;
 }
 
 export const CustomerSchema = new Schema({
@@ -40,6 +41,9 @@ export const CustomerSchema = new Schema({
     type: Date,
     required: true,
   },
+    latest_device: {
+        type: String,
+    },
 });
 
 export const CustomerModel = model<Customer>('Customer', CustomerSchema);

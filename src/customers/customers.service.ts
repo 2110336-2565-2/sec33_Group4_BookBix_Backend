@@ -30,11 +30,21 @@ export class CustomersService {
       password,
       email,
       date_created,
+      latest_device,
     });
     await newCustomer.save();
     return newCustomer;
   }
 
+
+  async updateLatestDevice(customerId: string, latest_device: string) {
+    console.log(customerId);
+    const customer = await this.customerModel.findById(customerId);
+    customer.latest_device = latest_device;
+    return customer;
+    await customer.save();
+  }
+  
   //log in user using the findOne method
   async getCustomer(email: string) {
     const customer = await this.customerModel.findOne({ email });
