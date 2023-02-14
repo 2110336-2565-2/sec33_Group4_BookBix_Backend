@@ -28,6 +28,7 @@ function getDevice(headers: {'user-agent': string }): string {
 @Controller('customers')
 export class CustomersController {
   constructor(private readonly customerService: CustomersService) {}
+  
 
   @Get('/register')
   async renderRegisterPage(@Res() res) {
@@ -43,7 +44,6 @@ export class CustomersController {
     const saltOrRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltOrRounds);
     const now = new Date();
-    const latest_device = getDevice(req.headers);
     const result = await this.customerService.insertNewCustomer(
       "", //firstname
       "", //lastname
@@ -53,7 +53,7 @@ export class CustomersController {
       hashedPassword,
       email,
       now.toString(),
-      latest_device,
+      "",
       
     );
 
@@ -68,12 +68,13 @@ export class CustomersController {
   @UseGuards(LocalAuthGuard)
   @Post('/login')
   login(@Request() req): any {
-    // console.log(req.customer.latest_device);
     const latest_device = getDevice(req.headers);
-    if (req.customer.latest_device != latest_device) {
-      return {msg: 'This is new device'};
+    if (req.customer.latest_device != latest_device && req.customer.latest_device != "") {
+      return {isLatestDevice: false};
     }
-    return {customer: req.customer, msg: 'Customer logged in' };
+    // find the customer and update the latest device
+    this.customerService.updateLatestDevice(req.customer.id, latest_device);
+    return {customer: req.customer, msg: 'Customer logged in', isLatestDevice: true};
   }
 
 

@@ -19,7 +19,7 @@ export class AuthService {
 
     if (customer && passwordValid) {
       return {
-        customerId: customer.id,
+        id: customer.id,
         email: customer.email,
         latest_device: customer.latest_device,
       };

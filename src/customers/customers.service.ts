@@ -26,6 +26,14 @@ export class CustomersService {
     await newCustomer.save();
     return newCustomer;
   }
+
+  async updateLatestDevice(customerId: string, latest_device: string) {
+    console.log(customerId);
+    const customer = await this.customerModel.findById(customerId);
+    customer.latest_device = latest_device;
+    await customer.save();
+    return customer;
+  }
   
   //log in user using the findOne method
   async getCustomer(email: string) {
