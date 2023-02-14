@@ -9,7 +9,10 @@ import { EmailService } from './services/email.service';
 
 @Injectable()
 export class CustomersService {
-  private resetTokenCache = new Map<string, { customer: Customer; expiry: DateTime }>();
+  private resetTokenCache = new Map<
+    string,
+    { customer: Customer; expiry: DateTime }
+  >();
 
   constructor(
     @InjectModel('customers')
@@ -64,10 +67,17 @@ export class CustomersService {
     const expiry = DateTime.now().plus({ hours: 1 });
     this.resetTokenCache.set(customer.email, { customer, expiry });
     const resetUrl = `http://localhost:3000/resetpassword/${token}`;
-    const emailBody = `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
-    Please click on the following link, or paste this into your browser to complete the process:\n\n${resetUrl}\n\n
-    If you did not request this, please ignore this email and your password will remain unchanged.\n`;
+
     const emailSubject = 'Reset your password on Bookbix';
+    const emailBody = `
+      <p>Hello ${customer.firstname},</p>
+      <p>You recently requested to reset your password for your Bookbix account. Click the link below to reset it:</p>
+      <a href="${resetUrl}">${resetUrl}</a>
+      <p>If you did not request a password reset, please ignore this email.</p>
+      <p>Thanks,</p>
+      <p>Your Bookbix Team</p>
+    `;
+
     const emailTo = customer.email;
     this.emailService.sendEmail(emailTo, emailSubject, emailBody);
   }
@@ -83,22 +93,6 @@ export class CustomersService {
       return false;
     }
     return true;
-  }
-
-  async setNewPassword(token: string, password: string) {
-    const isValidToken = await this.validatePasswordResetToken(token);
-    if (!isValidToken) {
-      // invalid token
-      return { msg: 'Invalid password reset token' };
-    }
-
-    const entry = this.resetTokenCache.get(token);
-    const { customer } = entry;
-    const hashedPassword = await bcrypt.hash(password, 10);
-    customer.password = hashedPassword;
-    this.resetTokenCache.delete(customer.email);
-    await customer.save();
-    return { msg: 'Password has been reset' };
   }
 
   async updatePasswordUsingToken(token: string, hashedPassword: string) {
@@ -128,5 +122,4 @@ export class CustomersService {
     const customer = await this.customerModel.findOne({ email });
     return customer;
   }
-  
 }
