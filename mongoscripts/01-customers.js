@@ -6,7 +6,7 @@ db.customers.insertMany([
     sex: 'Male',
     birthdate: '1985-03-15',
     username: 'johndoe85',
-    password: '$2a$10$RkOg8y4M7Y4YwF1jKqx3We9t9oZtBHJ/L7WQ2j/F0TdT6/vbN/jW6', //Hased with bcrypt
+    password: '$2a$12$rCMpOnOuZMulEy.SrzMH7.mx3gzWgwVh96EgIuKuvYXI7A.9SBJJK', //test123
     email: 'johndoe85@gmail.com',
     date_created: '2022-12-01T10:00:00.000Z', //Stored in ISO format
   },
@@ -17,7 +17,7 @@ db.customers.insertMany([
     sex: 'Female',
     birthdate: '1990-07-20',
     username: 'janesmith90',
-    password: '$2a$10$Q8zvAVL7leYOLYsT1TtfWuCsxvKjbAwhru9obE7WbIt.PAiT/TdwG',
+    password: '$2a$12$rCMpOnOuZMulEy.SrzMH7.mx3gzWgwVh96EgIuKuvYXI7A.9SBJJK', //test123
     email: 'janesmith90@gmail.com',
     date_created: '2022-11-15T11:30:00.000Z',
   },
@@ -28,7 +28,7 @@ db.customers.insertMany([
     sex: 'Male',
     birthdate: '1995-01-10',
     username: 'michaelj95',
-    password: '$2a$10$yJAKLf0B7Vr3JqLh7VkFwOY/z2Ldpj/NddzR7Np1xn9fNrNn3ZklO',
+    password: '$2a$12$rCMpOnOuZMulEy.SrzMH7.mx3gzWgwVh96EgIuKuvYXI7A.9SBJJK', //test123
     email: 'michaelj95@gmail.com',
     date_created: '2022-10-20T09:00:00.000Z',
   },
@@ -39,7 +39,7 @@ db.customers.insertMany([
     sex: 'Female',
     birthdate: '1992-06-05',
     username: 'emilybrown92',
-    password: '$2a$10$1eRKMhkm6X9.7fa.dOZO3.eBh3a8V7PkHvT/0StgKp6U9V7UHx6P2',
+    password: '$2a$12$rCMpOnOuZMulEy.SrzMH7.mx3gzWgwVh96EgIuKuvYXI7A.9SBJJK', //test123
     email: 'emilybrown92@gmail.com',
     date_created: '2022-09-10T14:00:00.000Z',
   },
@@ -50,8 +50,8 @@ db.customers.insertMany([
     sex: 'Male',
     birthdate: '1987-12-25',
     username: 'davidw87',
-    password: '$2a$10$A/hv0QP7oOAbBf8XGjx0vC.Zg0fLqa/N/7VuU.NgN7VJTfz9U6/sW',
+    password: '$2a$12$rCMpOnOuZMulEy.SrzMH7.mx3gzWgwVh96EgIuKuvYXI7A.9SBJJK', //test123
     email: 'davidw87@gmail.com',
     date_created: '2022-10-20T09:00:00.000Z',
   },
-]);
+])
