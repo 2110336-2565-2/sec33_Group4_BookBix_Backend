@@ -18,7 +18,7 @@ const deviceDetector = new DeviceDetector();
 function getDevice(headers: {'user-agent': string }): string {
   const userAgent = headers['user-agent']; 
   const result = deviceDetector.parse(userAgent);
-  console.log(JSON.stringify(result));
+  // console.log(JSON.stringify(result));
   if (!result.os) {
     return "POSTMAN - " + JSON.stringify(result.client.name).toUpperCase().slice(1,-1);
   }
@@ -68,6 +68,11 @@ export class CustomersController {
   @UseGuards(LocalAuthGuard)
   @Post('/login')
   login(@Request() req): any {
+    // console.log(req.customer.latest_device);
+    const latest_device = getDevice(req.headers);
+    if (req.customer.latest_device != latest_device) {
+      return {msg: 'This is new device'};
+    }
     return {customer: req.customer, msg: 'Customer logged in' };
   }
 
