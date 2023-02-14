@@ -4,7 +4,7 @@ export interface Booking extends Document {
   customer_id: Schema.Types.ObjectId;
   provider_id: Schema.Types.ObjectId;
   start_date: Date; // ISO 8601
-  duration: number; // in minutes
+  duration: number; // in hours
   status: string; // 'pending', 'completed', 'cancelled'
 }
 
@@ -31,4 +31,4 @@ export const BookingSchema = new Schema({
   },
 });
 
-export const CustomerModel = model<Booking>('Booking', BookingSchema);
+export const BookingModel = model<Booking>('Booking', BookingSchema);
