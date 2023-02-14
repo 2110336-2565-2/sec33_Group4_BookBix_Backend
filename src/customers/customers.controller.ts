@@ -124,7 +124,7 @@ export class CustomersController {
       // customer not found
       return { msg: 'No customer found with that email address' };
     }
-  
+
     const token = await this.customerService.generatePasswordResetToken(
       customer.id,
     );
@@ -132,24 +132,11 @@ export class CustomersController {
       // error generating token
       return { msg: 'Error generating password reset token' };
     }
-  
-    const resetUrl = `http://localhost:3000/reset-password?token=${token}`;
-  
-    const emailSubject = 'Reset Your Password';
-    const emailBody = `
-      <p>Hello ${customer.firstname},</p>
-      <p>You recently requested to reset your password for your Bookbix account. Click the link below to reset it:</p>
-      <a href="${resetUrl}">${resetUrl}</a>
-      <p>If you did not request a password reset, please ignore this email.</p>
-      <p>Thanks,</p>
-      <p>Your Bookbix Team</p>
-    `;
-  
-    await this.emailService.sendEmail(customer.email, emailSubject, emailBody);
-  
+
+    await this.customerService.sendPasswordResetEmail(customer);
+
     return { msg: 'Password reset email sent' };
   }
-  
 
   @Get('/resetpassword/:token')
   async renderNewPasswordPage(@Param('token') token: string, @Res() res) {
@@ -168,7 +155,13 @@ export class CustomersController {
   async setNewPassword(
     @Param('token') token: string,
     @Body('password') password: string,
+    @Body('confirmPassword') confirmPassword: string,
   ) {
+    if (password !== confirmPassword) {
+      // password and confirm password do not match
+      return { msg: 'Password and confirm password do not match' };
+    }
+
     const isValidToken = await this.customerService.validatePasswordResetToken(
       token,
     );
