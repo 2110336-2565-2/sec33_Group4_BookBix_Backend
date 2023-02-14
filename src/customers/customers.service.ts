@@ -25,7 +25,8 @@ export class CustomersService {
     username: string,
     password: string,
     email: string,
-    date_created: string,
+    date_created: Date,
+    latest_device: string,
   ) {
     const usernameLower = username.toLowerCase();
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -38,11 +39,21 @@ export class CustomersService {
       password: hashedPassword,
       email,
       date_created,
+      latest_device,
     });
     await newCustomer.save();
     return newCustomer;
   }
 
+  async updateLatestDevice(customerId: string, latest_device: string) {
+    console.log(customerId);
+    const customer = await this.customerModel.findById(customerId);
+    customer.latest_device = latest_device;
+    await customer.save();
+    return customer;
+  }
+
+  //log in user using the findOne method
   async getCustomer(email: string) {
     const customer = await this.customerModel.findOne({ email });
     return customer;

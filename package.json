@@ -29,6 +29,7 @@
     "@types/bcrypt": "^5.0.0",
     "@types/express-session": "^1.17.5",
     "bcrypt": "^5.1.0",
+    "device-detector-js": "^3.0.3",
     "dotenv": "^16.0.3",
     "express-session": "^1.17.3",
     "luxon": "^3.2.1",
