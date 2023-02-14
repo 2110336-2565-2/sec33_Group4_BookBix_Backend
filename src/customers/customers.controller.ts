@@ -14,6 +14,7 @@ import { AuthenticatedGuard } from 'src/auth/authenticated.guard';
 import { LocalAuthGuard } from 'src/auth/local.auth.guard';
 import { CustomersService } from './customers.service';
 import DeviceDetector = require('device-detector-js');
+import { EmailService } from './services/email.service';
 
 const deviceDetector = new DeviceDetector();
 function getDevice(headers: { 'user-agent': string }): string {
@@ -35,7 +36,10 @@ function getDevice(headers: { 'user-agent': string }): string {
 
 @Controller('customers')
 export class CustomersController {
-  constructor(private readonly customerService: CustomersService) {}
+  constructor(
+    private readonly emailService: EmailService,
+    private readonly customerService: CustomersService,
+  ) {}
 
   @Get('/register')
   async renderRegisterPage(@Res() res) {
@@ -120,7 +124,7 @@ export class CustomersController {
       // customer not found
       return { msg: 'No customer found with that email address' };
     }
-
+  
     const token = await this.customerService.generatePasswordResetToken(
       customer.id,
     );
@@ -128,12 +132,24 @@ export class CustomersController {
       // error generating token
       return { msg: 'Error generating password reset token' };
     }
-
-    // send email to customer with password reset link containing token
-    // ...
-
+  
+    const resetUrl = `http://localhost:3000/reset-password?token=${token}`;
+  
+    const emailSubject = 'Reset Your Password';
+    const emailBody = `
+      <p>Hello ${customer.firstname},</p>
+      <p>You recently requested to reset your password for your Bookbix account. Click the link below to reset it:</p>
+      <a href="${resetUrl}">${resetUrl}</a>
+      <p>If you did not request a password reset, please ignore this email.</p>
+      <p>Thanks,</p>
+      <p>Your Bookbix Team</p>
+    `;
+  
+    await this.emailService.sendEmail(customer.email, emailSubject, emailBody);
+  
     return { msg: 'Password reset email sent' };
   }
+  
 
   @Get('/resetpassword/:token')
   async renderNewPasswordPage(@Param('token') token: string, @Res() res) {
