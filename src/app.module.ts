@@ -5,9 +5,11 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { CustomersModule } from './customers/customers.module';
-
+import { ConfigModule } from '@nestjs/config';
+import { EmailModule } from "./customers/services/email.module";
 @Module({
   imports: [
+    EmailModule,
     BookingsModule,
     AuthModule,
     CustomersModule,
@@ -15,6 +17,9 @@ import { CustomersModule } from './customers/customers.module';
       //database url string
       process.env.MONGODB_DBURL,
     ),
+    ConfigModule.forRoot({
+      isGlobal: true, // no need to import into other modules
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
