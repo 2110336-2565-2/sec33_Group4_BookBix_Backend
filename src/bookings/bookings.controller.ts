@@ -28,7 +28,6 @@ export class BookingsController {
     @Body('start_date') start_date: string,
     @Body('duration') duration: number,
   ) {
-    console.log(req);
     const result = await this.bookingsService.createBooking(
       customer_email,
       provider_email,
