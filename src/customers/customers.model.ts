@@ -41,9 +41,9 @@ export const CustomerSchema = new Schema({
     type: Date,
     required: true,
   },
-    latest_device: {
-        type: String,
-    },
+  latest_device: {
+    type: String,
+  },
 });
 
 export const CustomerModel = model<Customer>('Customer', CustomerSchema);
