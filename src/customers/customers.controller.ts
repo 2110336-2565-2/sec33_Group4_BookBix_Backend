@@ -13,6 +13,8 @@ import { AuthenticatedGuard } from 'src/auth/authenticated.guard';
 import { LocalAuthGuard } from 'src/auth/local.auth.guard';
 import { CustomersService } from './customers.service';
 import DeviceDetector = require('device-detector-js');
+import { JwtService } from '@nestjs/jwt';
+import { jwtConstants } from '../auth/constants';
 
 const deviceDetector = new DeviceDetector();
 function getDevice(headers: { 'user-agent': string }): string {
@@ -34,7 +36,10 @@ function getDevice(headers: { 'user-agent': string }): string {
 
 @Controller('customers')
 export class CustomersController {
-  constructor(private readonly customerService: CustomersService) {}
+  constructor(
+    private readonly customerService: CustomersService,
+    private jwtService: JwtService,
+  ) {}
 
   @Get('/register')
   async renderRegisterPage(@Res() res) {
@@ -83,10 +88,17 @@ export class CustomersController {
     }
     // find the customer and update the latest device
     this.customerService.updateLatestDevice(req.customer.id, latest_device);
+    const payload = { id: req.customer.id, email: req.customer.email };
+    const token = this.jwtService.sign(payload, {
+      secret: jwtConstants.secret,
+    });
+    console.log(payload);
+    console.log(token);
     return {
       customer: req.customer,
       msg: 'Customer logged in',
       isLatestDevice: true,
+      access_token: token,
     };
   }
 
