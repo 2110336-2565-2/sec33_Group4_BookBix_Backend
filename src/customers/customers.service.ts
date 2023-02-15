@@ -38,7 +38,7 @@ export class CustomersService {
   }
 
   async updateLatestDevice(customerId: string, latest_device: string) {
-    console.log(customerId);
+    // console.log(customerId);
     const customer = await this.customerModel.findById(customerId);
     customer.latest_device = latest_device;
     await customer.save();
