@@ -16,6 +16,7 @@ import { CustomersService } from './customers.service';
 import DeviceDetector = require('device-detector-js');
 import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from '../auth/constants';
+import { JwtAuthService } from 'src/auth/jwt.service';
 
 const deviceDetector = new DeviceDetector();
 function getDevice(headers: { 'user-agent': string }): string {
@@ -40,6 +41,7 @@ export class CustomersController {
   constructor(
     private readonly customerService: CustomersService,
     private jwtService: JwtService,
+    private jwtAuthService: JwtAuthService,
   ) {}
 
   @Get('/register')
@@ -95,6 +97,7 @@ export class CustomersController {
     });
     console.log(payload);
     console.log(token);
+    this.jwtAuthService.createCookie(req.res, token);
     return {
       customer: req.customer,
       msg: 'Customer logged in',
