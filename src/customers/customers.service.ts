@@ -9,7 +9,6 @@ import { EmailService } from './services/email.service';
 
 @Injectable()
 export class CustomersService {
-
   private resetTokenCache = new Map<
     string,
     { customer: Customer; expiry: DateTime }
@@ -18,7 +17,7 @@ export class CustomersService {
   constructor(
     @InjectModel('customers') private readonly customerModel: Model<Customer>,
     private readonly emailService: EmailService,
-    ) {}
+  ) {}
 
   //Signup new customer with username, password and other
   async insertNewCustomer(
@@ -49,7 +48,6 @@ export class CustomersService {
   }
 
   async updateLatestDevice(customerId: string, latest_device: string) {
-    // console.log(customerId);
     const customer = await this.customerModel.findById(customerId);
     customer.latest_device = latest_device;
     await customer.save();
@@ -59,6 +57,11 @@ export class CustomersService {
   //log in user using the findOne method
   async getCustomer(email: string) {
     const customer = await this.customerModel.findOne({ email });
+    return customer;
+  }
+
+  async getCustomerById(customerId: string) {
+    const customer = await this.customerModel.findById(customerId);
     return customer;
   }
 

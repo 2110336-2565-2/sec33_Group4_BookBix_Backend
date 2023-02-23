@@ -87,6 +87,7 @@ export class CustomersController {
       req.customer.latest_device != latest_device &&
       req.customer.latest_device != ''
     ) {
+      console.log(req.customer.latest_device);
       return { isLatestDevice: false };
     }
     // find the customer and update the latest device
@@ -98,6 +99,7 @@ export class CustomersController {
     console.log(payload);
     console.log(token);
     this.jwtAuthService.createCookie(req.res, token);
+    console.log('fuck');
     return {
       customer: req.customer,
       msg: 'Customer logged in',
@@ -107,8 +109,8 @@ export class CustomersController {
   }
 
   @UseGuards(AuthenticatedGuard)
-  @Get('/protected')
-  getHello(@Request() req): string {
+  @Get('/me')
+  getUser(@Request() req): string {
     return req.user;
   }
 
