@@ -10,6 +10,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthService } from './jwt.service';
 import { AdminsModule } from 'src/admins/admins.module';
 import { ProvidersModule } from 'src/providers/providers.module';
+import { AuthController } from './auth.controller';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ProvidersModule } from 'src/providers/providers.module';
       signOptions: { expiresIn: '60s' },
     }),
   ],
+  controllers: [AuthController],
   providers: [
     AuthService,
     LocalStrategy,

@@ -15,7 +15,7 @@ import { UserType } from './constants';
 import { CustomersService } from 'src/customers/customers.service';
 import { AdminsService } from 'src/admins/admins.service';
 import { ProvidersService } from 'src/providers/providers.service';
-import DeviceDetector from 'device-detector-js';
+import DeviceDetector = require('device-detector-js');
 import { JwtService } from '@nestjs/jwt';
 import { JwtAuthService } from './jwt.service';
 
@@ -59,31 +59,43 @@ export class AuthController {
         username,
         password,
       );
-      const payload = { username: customer.username, sub: customer._id };
+      const payload = {
+        username: customer.username,
+        sub: customer._id,
+        type: UserType.CUSTOMER,
+      };
       return {
         msg: 'Customer successfully registered',
-        access_token: this.authService.generateToken(payload),
+        access_token: await this.authService.generateToken(payload),
       };
-    
-    // } else if (userType === UserType.ADMIN) {
-    //   const admin = await this.authService.registerAdmin(username, password);
-    //   const payload = { username: admin.username, sub: admin._id };
-    //   return {
-    //     msg: 'Admin successfully registered',
-    //     access_token: this.authService.generateToken(payload),
-    //   };
-    // } else if (userType === UserType.PROVIDER) {
-    //   const provider = await this.authService.registerProvider(
-    //     username,
-    //     password,
-    //   );
-    //   // TODO: after TODO3 and TODO4 uncomment registerProvider function
-    //   const payload = { username: provider.username, sub: provider._id };
-    //   return {
-    //     msg: 'Provider successfully registered',
-    //     access_token: this.authService.generateToken(payload),
-    //   };
-    // TODO: after TODO3 and TODO4 in auth.service.ts uncomment if else case above
+
+      // } else if (userType === UserType.ADMIN) {
+      //   const admin = await this.authService.registerAdmin(username, password);
+      //   const payload = {
+      //     username: admin.username,
+      //     sub: admin._id,
+      //     type: UserType.ADMIN,
+      //   };
+      //   return {
+      //     msg: 'Admin successfully registered',
+      //     access_token: this.authService.generateToken(payload),
+      //   };
+      // } else if (userType === UserType.PROVIDER) {
+      //   const provider = await this.authService.registerProvider(
+      //     username,
+      //     password,
+      //   );
+      //   // TODO: after TODO3 and TODO4 uncomment registerProvider function
+      //   const payload = {
+      //     username: provider.username,
+      //     sub: provider._id,
+      //     type: UserType.PROVIDER,
+      //   };
+      //   return {
+      //     msg: 'Provider successfully registered',
+      //     access_token: this.authService.generateToken(payload),
+      //   };
+      // TODO: after TODO3 and TODO4 in auth.service.ts uncomment if else case above
     } else {
       return {
         msg: 'Invalid user type',
@@ -95,7 +107,15 @@ export class AuthController {
   @Post('/login')
   async login(@Request() req) {
     let user: any;
-    const { email, password, userType } = req.body;
+    const { email, password } = req.body;
+    const token = req.cookies['access_token'];
+    const decoded: any = this.jwtService.decode(token);
+
+    if (!decoded || !decoded.type) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    const userType = decoded.type;
     switch (userType) {
       case UserType.CUSTOMER:
         user = await this.customerService.getCustomer(email);
@@ -142,18 +162,16 @@ export class AuthController {
     }
 
     const payload = { id: user.id, email: user.email, type: userType };
-    const token = this.jwtService.sign(payload);
+    const newToken = this.jwtService.sign(payload);
     console.log(payload);
-    console.log(token);
-    this.jwtAuthService.createCookie(req.res, token);
-    console.log('fuck');
+    console.log(newToken);
+    this.jwtAuthService.createCookie(req.res, newToken);
     return {
       user,
       msg: 'User logged in',
       isLatestDevice: true,
-      access_token: token,
+      access_token: newToken,
     };
   }
 
-  
 }
