@@ -6,7 +6,9 @@ import { AuthModule } from './auth/auth.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { CustomersModule } from './customers/customers.module';
 import { ConfigModule } from '@nestjs/config';
-import { EmailModule } from "./customers/services/email.module";
+import { EmailModule } from "./auth/email/email.module";
+import { ProvidersModule } from './providers/providers.module';
+import { AdminsModule } from './admins/admins.module';
 @Module({
   imports: [
     EmailModule,
@@ -20,6 +22,8 @@ import { EmailModule } from "./customers/services/email.module";
     ConfigModule.forRoot({
       isGlobal: true, // no need to import into other modules
     }),
+    ProvidersModule,
+    AdminsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -8,9 +8,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthService } from './jwt.service';
+import { AdminsModule } from 'src/admins/admins.module';
+import { ProvidersModule } from 'src/providers/providers.module';
 
 @Module({
   imports: [
+    AdminsModule,
+    ProvidersModule,
     CustomersModule,
     PassportModule.register({ session: true }),
     JwtModule.register({
