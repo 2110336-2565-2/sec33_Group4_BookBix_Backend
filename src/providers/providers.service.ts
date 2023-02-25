@@ -1,26 +1,34 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateProviderDto } from './dto/create-provider.dto';
 import { UpdateProviderDto } from './dto/update-provider.dto';
+import { Provider } from './entities/provider.entity';
 
 @Injectable()
 export class ProvidersService {
-  create(createProviderDto: CreateProviderDto) {
-    return 'This action adds a new provider';
+
+  constructor(
+    @InjectModel('providers') private readonly providerModel: Model<Provider>,
+  ) {}
+  
+  
+  async insertNewProvider(createProviderDto: CreateProviderDto) {
+    const newProvider = new this.providerModel(createProviderDto);
+    await newProvider.save();
+    return newProvider;
   }
 
-  findAll() {
-    return `This action returns all providers`;
+  async getProvider(email: string) {
+    const provider = await this.providerModel.findOne({ email });
+    return provider;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} provider`;
+  async updateLatestDevice(providerId: string, latest_device: string) {
+    const provider = await this.providerModel.findById(providerId);
+    provider.latest_device = latest_device;
+    await provider.save();
+    return provider;
   }
 
-  update(id: number, updateProviderDto: UpdateProviderDto) {
-    return `This action updates a #${id} provider`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} provider`;
-  }
 }
