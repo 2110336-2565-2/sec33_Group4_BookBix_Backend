@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Customer } from './entities/customers.entity';
-import * as bcrypt from 'bcrypt';
+import { CreateCustomerDto } from './dto/create-customer.dto';
 import * as crypto from 'crypto';
 import { DateTime } from 'luxon';
 import { EmailService } from '../auth/email/email.service';
@@ -19,33 +19,13 @@ export class CustomersService {
     private readonly emailService: EmailService,
   ) {}
 
-  //Signup new customer with username, password and other
-  async insertNewCustomer(
-    firstname: string,
-    lastname: string,
-    sex: string,
-    birthdate: string,
-    username: string,
-    password: string,
-    email: string,
-    date_created: Date,
-    latest_device: string,
-  ) {
-    const usernameLower = username.toLowerCase();
-    const newCustomer = new this.customerModel({
-      firstname,
-      lastname,
-      sex,
-      birthdate,
-      username,
-      password,
-      email,
-      date_created,
-      latest_device,
-    });
+
+  async insertNewCustomer(createCustomerDto: CreateCustomerDto) {
+    const newCustomer = new this.customerModel(createCustomerDto);
     await newCustomer.save();
     return newCustomer;
   }
+  
 
   async updateLatestDevice(customerId: string, latest_device: string) {
     const customer = await this.customerModel.findById(customerId);
@@ -54,7 +34,6 @@ export class CustomersService {
     return customer;
   }
 
-  //log in user using the findOne method
   async getCustomer(email: string) {
     const customer = await this.customerModel.findOne({ email });
     return customer;
