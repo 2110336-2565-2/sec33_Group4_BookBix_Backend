@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   Request,
+  SetMetadata,
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
@@ -21,7 +22,8 @@ import { ProvidersService } from 'src/providers/providers.service';
 import DeviceDetector = require('device-detector-js');
 import { JwtService } from '@nestjs/jwt';
 import { JwtAuthService } from './jwt.service';
-
+import {RolesGuard} from './guards/roles.auth.guard'
+import { AuthGuard } from '@nestjs/passport';
 const deviceDetector = new DeviceDetector();
 function getDevice(headers: { 'user-agent': string }): string {
   const userAgent = headers['user-agent'];
@@ -72,7 +74,7 @@ export class AuthController {
         access_token: await this.authService.generateToken(payload),
       };
     } else if (userType === UserType.ADMIN) {
-      const admin = await this.authService.registerAdmin(username, password);
+      const admin = await this.authService.registerAdmin(email,username, password);
       const payload = {
         username: admin.username,
         sub: admin._id,
@@ -80,14 +82,14 @@ export class AuthController {
       };
       return {
         msg: 'Admin successfully registered',
-        access_token: this.authService.generateToken(payload),
+        access_token: await this.authService.generateToken(payload),
       };
     } else if (userType === UserType.PROVIDER) {
       const provider = await this.authService.registerProvider(
+        email,
         username,
-        password,
+        password
       );
-      // TODO: after TODO3 and TODO4 uncomment registerProvider function
       const payload = {
         username: provider.username,
         sub: provider._id,
@@ -95,9 +97,8 @@ export class AuthController {
       };
       return {
         msg: 'Provider successfully registered',
-        access_token: this.authService.generateToken(payload),
+        access_token: await this.authService.generateToken(payload),
       };
-      // TODO: after TODO3 and TODO4 in auth.service.ts uncomment if else case above
     } else {
       return {
         msg: 'Invalid user type',
@@ -105,14 +106,15 @@ export class AuthController {
     }
   }
 
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @SetMetadata('roles', [UserType.ADMIN, UserType.CUSTOMER, UserType.PROVIDER])
   @Post('/login')
   async login(@Request() req) {
     let user: any;
     const { email, password } = req.body;
     const token = req.cookies['access_token'];
     const decoded: any = this.jwtService.decode(token);
-
+    
     if (!decoded || !decoded.type) {
       throw new UnauthorizedException('Invalid token');
     }
@@ -122,13 +124,13 @@ export class AuthController {
       case UserType.CUSTOMER:
         user = await this.customerService.getCustomer(email);
         break;
-      // case UserType.ADMIN:
-      //   user = await this.adminService.getAdmin(email); // TODO5: write adminService.getAdmin()
-      //   break;
-      // case UserType.PROVIDER:
-      //   user = await this.providerService.getProvider(email); // TODO6: write providerService.getProvider()
-      //   break;
-      // TODO: after TODO5 and TODO6 uncomment case above
+      case UserType.ADMIN:
+        user = await this.adminService.getAdmin(email); // TODO5: write adminService.getAdmin()
+        break;
+      case UserType.PROVIDER:
+        user = await this.providerService.getProvider(email); // TODO6: write providerService.getProvider()
+        break;
+      // TODO: after TODO5 and TODO6 uncomment case aboves
       default:
         throw new BadRequestException('Invalid user type');
     }
@@ -152,12 +154,12 @@ export class AuthController {
       case UserType.CUSTOMER:
         await this.customerService.updateLatestDevice(user.id, latest_device);
         break;
-      // case UserType.ADMIN:
-      //   await this.adminService.updateLatestDevice(user.id, latest_device); // TODO7: write adminService.updateLatestDevice()
-      //   break;
-      // case UserType.PROVIDER:
-      //   await this.providerService.updateLatestDevice(user.id, latest_device); // TODO8: write providerService.updateLatestDevice()
-      //   break;
+      case UserType.ADMIN:
+        await this.adminService.updateLatestDevice(user.id, latest_device); // TODO7: write adminService.updateLatestDevice()
+        break;
+      case UserType.PROVIDER:
+        await this.providerService.updateLatestDevice(user.id, latest_device); // TODO8: write providerService.updateLatestDevice()
+        break;
       // TODO: after TODO7 and TODO8 uncomment case above
       default:
         throw new BadRequestException('Invalid user type');
@@ -203,5 +205,5 @@ export class AuthController {
   //   }
 
   //   return await this.authService.updatePasswordUsingToken(token, password);
-  }
+  // }
 }

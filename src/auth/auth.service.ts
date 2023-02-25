@@ -3,9 +3,11 @@ import { CustomersService } from 'src/customers/customers.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UserType } from './constants';
-import { AdminsService } from "../admins/admins.service";
+import { AdminsService } from '../admins/admins.service';
 import { ProvidersService } from '../providers/providers.service';
-
+import { CreateCustomerDto } from '../customers/dto/create-customer.dto';
+import { CreateAdminDto } from '../admins/dto/create-admin.dto';
+import { CreateProviderDto } from 'src/providers/dto/create-provider.dto';
 @Injectable()
 export class AuthService {
   constructor(
@@ -23,42 +25,62 @@ export class AuthService {
     const saltOrRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltOrRounds);
     const now = new Date();
-    const customer = await this.customerService.insertNewCustomer(
-      '', //firstname
-      '', //lastname
-      '', // sex
-      '', // birthdate
-      username, //username
-      hashedPassword,
-      email,
-      now,
-      '',
-    );
+    const customerDto = new CreateCustomerDto();
+    customerDto.username = username;
+    customerDto.password = hashedPassword;
+    customerDto.email = email;
+    customerDto.date_created = now;
+
+    const customer = await this.customerService.insertNewCustomer(customerDto);
+
     if (!customer) {
       throw new NotAcceptableException('Could not register the user');
     }
     return customer;
   }
 
-  // async registerAdmin(username: string, password: string): Promise<any> {
-  //   const admin = await this.adminService.insertNewAdmin(username, password); // TODO3: write a insertNewAdmin
-  //   if (!admin) {
-  //     throw new NotAcceptableException('Could not register the user');
-  //   }
-  //   return admin;
-  // }
-// TODO: after TODO3 uncomment registerAdmin function
-  // async registerProvider(username: string, password: string): Promise<any> {
-  //   const provider = await this.providerService.insertNewProvider(// TODO4: write a insertNewProvider
-  //     username,
-  //     password,
-  //   );
-  //   if (!provider) {
-  //     throw new NotAcceptableException('Could not register the user');
-  //   }
-  //   return provider;
-  // }
-// TODO: after TODO4 uncomment registerProvider function
+  async registerAdmin(
+    email: string,
+    username: string,
+    password: string,
+  ): Promise<any> {
+    const saltOrRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltOrRounds);
+
+    const createAdminDto: CreateAdminDto = {
+      email,
+      username,
+      password: hashedPassword,
+      date_created: new Date(),
+    };
+
+    return await this.adminService.insertNewAdmin(createAdminDto);
+  }
+  async registerProvider(
+    email: string,
+    username: string,
+    password: string,
+  ): Promise<any> {
+    const saltOrRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltOrRounds);
+    const now = new Date();
+
+    const createProviderDto = new CreateProviderDto();
+    createProviderDto.username = username;
+    createProviderDto.password = hashedPassword;
+    createProviderDto.email = email;
+    createProviderDto.date_created = now;
+
+    const provider = await this.providerService.insertNewProvider(
+      createProviderDto,
+    );
+
+    if (!provider) {
+      throw new NotAcceptableException('Could not register the user');
+    }
+    return provider;
+  }
+
   async validateCustomer(email: string, password: string): Promise<any> {
     const customer = await this.customerService.getCustomer(email);
     if (!customer) {
@@ -75,38 +97,36 @@ export class AuthService {
     return null;
   }
 
-  // async validateAdmin(email: string, password: string): Promise<any> {
-  //   const admin = await this.adminService.getAdmin(email); // TODO1: write a getAdmin service
-  //   if (!admin) {
-  //     throw new NotAcceptableException('Could not find the user');
-  //   }
-  //   const passwordValid = await bcrypt.compare(password, admin.password);
-  //   if (admin && passwordValid) {
-  //     return {
-  //       id: admin.id,
-  //       username: admin.username,
-  //       latest_device: admin.latest_device,
-  //     };
-  //   }
-  //   return null;
-  // }
-// TODO: after TODO1 uncomment validateAdmin function
-  // async validateProvider(email: string, password: string): Promise<any> {
-  //   const provider = await this.providerService.getProvider(email); // TODO2: write a getAdmin service
-  //   if (!provider) {
-  //     throw new NotAcceptableException('Could not find the user');
-  //   }
-  //   const passwordValid = await bcrypt.compare(password, provider.password);
-  //   if (provider && passwordValid) {
-  //     return {
-  //       id: provider.id,
-  //       username: provider.username,
-  //       latest_device: provider.latest_device,
-  //     };
-  //   }
-  //   return null;
-  // }
-// TODO: after TODO2 uncomment validateProvider function
+  async validateAdmin(email: string, password: string): Promise<any> {
+    const admin = await this.adminService.getAdmin(email);
+    if (!admin) {
+      throw new NotAcceptableException('Could not find the user');
+    }
+    const passwordValid = await bcrypt.compare(password, admin.password);
+    if (admin && passwordValid) {
+      return {
+        id: admin.id,
+        username: admin.username,
+        latest_device: admin.latest_device,
+      };
+    }
+    return null;
+  }
+  async validateProvider(email: string, password: string): Promise<any> {
+    const provider = await this.providerService.getProvider(email);
+    if (!provider) {
+      throw new NotAcceptableException('Could not find the user');
+    }
+    const passwordValid = await bcrypt.compare(password, provider.password);
+    if (provider && passwordValid) {
+      return {
+        id: provider.id,
+        username: provider.username,
+        latest_device: provider.latest_device,
+      };
+    }
+    return null;
+  }
   async validateUser(
     email: string,
     password: string,
@@ -115,11 +135,10 @@ export class AuthService {
     switch (userType) {
       case UserType.CUSTOMER:
         return await this.validateCustomer(email, password);
-      // case UserType.ADMIN:
-      //   return await this.validateAdmin(email, password);
-      // case UserType.ADMIN:
-      //   return await this.validateProvider(email, password);
-      // TODO: after TODO1 and TODO2 uncomment case UserType.ADMIN:, case UserType.ADMIN:
+      case UserType.ADMIN:
+        return await this.validateAdmin(email, password);
+      case UserType.ADMIN:
+        return await this.validateProvider(email, password);
       default:
         return null;
     }
@@ -135,5 +154,4 @@ export class AuthService {
   async generateToken(payload: any) {
     return this.jwtService.sign(payload);
   }
-  
 }
