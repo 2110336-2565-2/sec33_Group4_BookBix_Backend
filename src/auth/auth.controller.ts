@@ -22,7 +22,7 @@ import { ProvidersService } from 'src/providers/providers.service';
 import DeviceDetector = require('device-detector-js');
 import { JwtService } from '@nestjs/jwt';
 import { JwtAuthService } from './jwt.service';
-import {RolesGuard} from './guards/roles.auth.guard'
+import { RolesGuard } from './guards/roles.auth.guard';
 import { AuthGuard } from '@nestjs/passport';
 const deviceDetector = new DeviceDetector();
 function getDevice(headers: { 'user-agent': string }): string {
@@ -57,80 +57,72 @@ export class AuthController {
     @Body('username') username: string,
     @Body('password') password: string,
     @Body('userType') userType: UserType,
+    @Request() req,
   ) {
+    let user;
     if (userType === UserType.CUSTOMER) {
-      const customer = await this.authService.registerCustomer(
-        email,
-        username,
-        password,
-      );
-      const payload = {
-        username: customer.username,
-        sub: customer._id,
-        type: UserType.CUSTOMER,
-      };
-      return {
-        msg: 'Customer successfully registered',
-        access_token: await this.authService.generateToken(payload),
-      };
+      user = await this.authService.registerCustomer(email, username, password);
     } else if (userType === UserType.ADMIN) {
-      const admin = await this.authService.registerAdmin(email,username, password);
-      const payload = {
-        username: admin.username,
-        sub: admin._id,
-        type: UserType.ADMIN,
-      };
-      return {
-        msg: 'Admin successfully registered',
-        access_token: await this.authService.generateToken(payload),
-      };
+      user = await this.authService.registerAdmin(email, username, password);
     } else if (userType === UserType.PROVIDER) {
-      const provider = await this.authService.registerProvider(
-        email,
-        username,
-        password
-      );
-      const payload = {
-        username: provider.username,
-        sub: provider._id,
-        type: UserType.PROVIDER,
-      };
-      return {
-        msg: 'Provider successfully registered',
-        access_token: await this.authService.generateToken(payload),
-      };
+      user = await this.authService.registerProvider(email, username, password);
     } else {
       return {
         msg: 'Invalid user type',
       };
     }
+
+    const payload = {
+      username: user.username,
+      sub: user._id,
+      type: userType,
+    };
+    const access_token = await this.authService.generateToken(payload);
+    this.jwtAuthService.createCookie(req.res, access_token);
+
+    let successMsg;
+    switch (userType) {
+      case UserType.CUSTOMER:
+        successMsg = 'Customer successfully registered';
+        break;
+      case UserType.ADMIN:
+        successMsg = 'Admin successfully registered';
+        break;
+      case UserType.PROVIDER:
+        successMsg = 'Provider successfully registered';
+        break;
+    }
+    return {
+      msg: successMsg,
+      access_token: access_token,
+    };
   }
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(RolesGuard)
   @SetMetadata('roles', [UserType.ADMIN, UserType.CUSTOMER, UserType.PROVIDER])
   @Post('/login')
   async login(@Request() req) {
     let user: any;
     const { email, password } = req.body;
-    const token = req.cookies['access_token'];
-    const decoded: any = this.jwtService.decode(token);
-    
-    if (!decoded || !decoded.type) {
-      throw new UnauthorizedException('Invalid token');
-    }
+    // const token = req.cookies['access_token'];
+    // const decoded: any = this.jwtService.decode(token);
 
-    const userType = decoded.type;
+    // if (!decoded || !decoded.type) {
+    //   throw new UnauthorizedException('Invalid token');
+    // }
+
+    // const userType = decoded.type;
+    const userType = await this.authService.getUserType(email);
     switch (userType) {
       case UserType.CUSTOMER:
         user = await this.customerService.getCustomer(email);
         break;
       case UserType.ADMIN:
-        user = await this.adminService.getAdmin(email); // TODO5: write adminService.getAdmin()
+        user = await this.adminService.getAdmin(email);
         break;
       case UserType.PROVIDER:
-        user = await this.providerService.getProvider(email); // TODO6: write providerService.getProvider()
+        user = await this.providerService.getProvider(email);
         break;
-      // TODO: after TODO5 and TODO6 uncomment case aboves
       default:
         throw new BadRequestException('Invalid user type');
     }
@@ -145,22 +137,20 @@ export class AuthController {
     }
 
     const latest_device = getDevice(req.headers);
-    if (user.latest_device !== latest_device && user.latest_device !== '') {
-      console.log(user.latest_device);
-      return { isLatestDevice: false };
-    }
+    console.log(latest_device);
+    
+    
 
     switch (userType) {
       case UserType.CUSTOMER:
         await this.customerService.updateLatestDevice(user.id, latest_device);
         break;
       case UserType.ADMIN:
-        await this.adminService.updateLatestDevice(user.id, latest_device); // TODO7: write adminService.updateLatestDevice()
+        await this.adminService.updateLatestDevice(user.id, latest_device);
         break;
       case UserType.PROVIDER:
-        await this.providerService.updateLatestDevice(user.id, latest_device); // TODO8: write providerService.updateLatestDevice()
+        await this.providerService.updateLatestDevice(user.id, latest_device);
         break;
-      // TODO: after TODO7 and TODO8 uncomment case above
       default:
         throw new BadRequestException('Invalid user type');
     }
@@ -177,7 +167,7 @@ export class AuthController {
       access_token: newToken,
     };
   }
-// TODO: create reset password feature
+  // TODO: create reset password feature
   // // generate password reset token
   // @Post('/resetpassword')
   // async generatePasswordResetToken(@Body('email') email: string) {

@@ -143,7 +143,21 @@ export class AuthService {
         return null;
     }
   }
-
+  async getUserType(email: string): Promise<UserType> {
+    const customer = await this.customerService.getCustomer(email);
+    if (customer) {
+      return UserType.CUSTOMER;
+    }
+    const admin = await this.adminService.getAdmin(email);
+    if (admin) {
+      return UserType.ADMIN;
+    }
+    const provider = await this.providerService.getProvider(email);
+    if (provider) {
+      return UserType.PROVIDER;
+    }
+    return null;
+  }
   async login(user: any, userType: UserType) {
     const payload = { username: user.username, sub: user.id, type: userType };
     return {
