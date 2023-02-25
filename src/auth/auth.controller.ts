@@ -2,8 +2,11 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   NotFoundException,
+  Param,
   Post,
+  Put,
   Request,
   UnauthorizedException,
   UseGuards,
@@ -68,33 +71,32 @@ export class AuthController {
         msg: 'Customer successfully registered',
         access_token: await this.authService.generateToken(payload),
       };
-
-      // } else if (userType === UserType.ADMIN) {
-      //   const admin = await this.authService.registerAdmin(username, password);
-      //   const payload = {
-      //     username: admin.username,
-      //     sub: admin._id,
-      //     type: UserType.ADMIN,
-      //   };
-      //   return {
-      //     msg: 'Admin successfully registered',
-      //     access_token: this.authService.generateToken(payload),
-      //   };
-      // } else if (userType === UserType.PROVIDER) {
-      //   const provider = await this.authService.registerProvider(
-      //     username,
-      //     password,
-      //   );
-      //   // TODO: after TODO3 and TODO4 uncomment registerProvider function
-      //   const payload = {
-      //     username: provider.username,
-      //     sub: provider._id,
-      //     type: UserType.PROVIDER,
-      //   };
-      //   return {
-      //     msg: 'Provider successfully registered',
-      //     access_token: this.authService.generateToken(payload),
-      //   };
+    } else if (userType === UserType.ADMIN) {
+      const admin = await this.authService.registerAdmin(username, password);
+      const payload = {
+        username: admin.username,
+        sub: admin._id,
+        type: UserType.ADMIN,
+      };
+      return {
+        msg: 'Admin successfully registered',
+        access_token: this.authService.generateToken(payload),
+      };
+    } else if (userType === UserType.PROVIDER) {
+      const provider = await this.authService.registerProvider(
+        username,
+        password,
+      );
+      // TODO: after TODO3 and TODO4 uncomment registerProvider function
+      const payload = {
+        username: provider.username,
+        sub: provider._id,
+        type: UserType.PROVIDER,
+      };
+      return {
+        msg: 'Provider successfully registered',
+        access_token: this.authService.generateToken(payload),
+      };
       // TODO: after TODO3 and TODO4 in auth.service.ts uncomment if else case above
     } else {
       return {
@@ -173,5 +175,33 @@ export class AuthController {
       access_token: newToken,
     };
   }
+// TODO: create reset password feature
+  // // generate password reset token
+  // @Post('/resetpassword')
+  // async generatePasswordResetToken(@Body('email') email: string) {
+  //   return await this.authService.generatePasswordResetToken(email);
+  // }
 
+  // // validate password reset token
+  // @Get('/resetpassword/:token')
+  // async validatePasswordResetToken(@Param('token') token: string) {
+  //   return await this.authService.validatePasswordResetToken(token);
+  // }
+
+  // // update password using token
+  // @Put('/resetpassword/:token')
+  // async updatePasswordUsingToken(
+  //   @Param('token') token: string,
+  //   @Body('password') password: string,
+  //   @Body('confirmPassword') confirmPassword: string,
+  // ) {
+  //   if (password !== confirmPassword) {
+  //     // password and confirm password do not match
+  //     throw new BadRequestException(
+  //       'Password and confirm password do not match',
+  //     );
+  //   }
+
+  //   return await this.authService.updatePasswordUsingToken(token, password);
+  }
 }
