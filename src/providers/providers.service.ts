@@ -31,4 +31,13 @@ export class ProvidersService {
     return provider;
   }
 
+  async getProviderById(providerId: string) {
+    const provider = await this.providerModel.findById(providerId);
+    return provider;
+  }
+  async getProviderByEmail(email: string) {
+    const provider = await this.providerModel.findOne({ email });
+    return provider;
+  }
+
 }
