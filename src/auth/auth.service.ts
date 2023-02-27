@@ -209,7 +209,7 @@ export class AuthService {
     
     const token = await this.generatePasswordResetToken(user, userType);
     const emailSubject = 'Reset your password on Bookbix';
-    const emailBody = await this.getEmailBody(user.name, emailSubject, token);
+    const emailBody = await this.getEmailBody(user.username, emailSubject, token);
 
     await this.emailService.sendEmail(email, emailSubject, emailBody);
   }
