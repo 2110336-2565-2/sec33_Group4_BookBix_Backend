@@ -101,4 +101,30 @@ export class CustomersController {
     req.session.destroy();
     return { msg: 'The user session has ended' };
   }
+
+  //manage profile
+  //find id of customer and update
+  @Put('/manage-profile')
+  updateProfile(
+    @Request() req,
+    @Body('firstname') firstname: string,
+    @Body('lastname') lastname: string,
+    @Body('sex') sex: string,
+    @Body('birthdate') birthdate: string,
+    @Body('email') email: string,
+    ): any {
+    this.customerService.updateInformation(
+      req.customer.id, 
+      firstname,
+      lastname,
+      sex,
+      birthdate,
+      email,
+      );
+    return {
+      customer: req.customer,
+      msg: 'Customer updated',
+    };
+  }
+
 }
