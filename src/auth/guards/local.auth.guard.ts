@@ -5,7 +5,7 @@ import { AuthGuard } from '@nestjs/passport';
 export class LocalAuthGuard extends AuthGuard('local') {
   constructor() {
     super({
-      property: "customer",
+      property: "user",
     });
   }
   async canActivate(context: ExecutionContext) {
