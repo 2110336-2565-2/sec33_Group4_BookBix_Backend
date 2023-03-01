@@ -3,6 +3,7 @@ import { InjectModel, Schema } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { CustomersService } from 'src/customers/customers.service';
 import { Booking } from './bookings.model';
+import { loadStripe } from '@stripe/stripe-js';
 @Injectable()
 export class BookingsService {
   constructor(
@@ -16,6 +17,7 @@ export class BookingsService {
     provider_email: string,
     start_date: string,
     duration: number,
+    price_per_hour: number
   ) {
     const converted_date = new Date(start_date);
     const customer_id = await this.customerService.getCustomer(customer_email);
@@ -29,6 +31,9 @@ export class BookingsService {
     await newBooking.save();
     return newBooking;
   }
+
+  
+  
 
   //Get all unavailable timesot of a provider
   async getUnavailableTimeslot(provider_email: string) {

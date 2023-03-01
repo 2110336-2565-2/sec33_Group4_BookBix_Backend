@@ -27,16 +27,19 @@ export class BookingsController {
     @Body('provider_email') provider_email: string,
     @Body('start_date') start_date: string,
     @Body('duration') duration: number,
+    @Body('price_per_hour') price_per_hour: number, // Add this line to get the price_per_hour from the request body
   ) {
     const result = await this.bookingsService.createBooking(
       customer_email,
       provider_email,
       start_date,
       duration,
+      price_per_hour, // Pass the price_per_hour to the createBooking() method in the BookingsService
     );
     return {
       msg: 'Booking successfully created',
       bookingId: result.id,
     };
   }
+
 }

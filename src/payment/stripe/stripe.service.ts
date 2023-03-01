@@ -46,10 +46,10 @@ export class StripeService {
     return paymentIntent;
   }
   
-  async createCheckoutSession(amount: string, accountId: string): Promise<Stripe.Checkout.Session> {
+  async createCheckoutSession(priceId: string, accountId: string): Promise<Stripe.Checkout.Session> {
     const session = await this.stripe.checkout.sessions.create({
       mode: 'payment',
-      line_items: [{price: amount, quantity: 1}],
+      line_items: [{price: priceId, quantity: 1}],
       payment_intent_data: {
         application_fee_amount: 123,
         transfer_data: {destination: accountId},
@@ -58,7 +58,7 @@ export class StripeService {
       cancel_url: 'https://example.com/cancel',
     });
     return session;
-  } 
+  }
   async capturePayment(paymentIntentId: string): Promise<Stripe.PaymentIntent> {
     const paymentIntent = await this.stripe.paymentIntents.capture(paymentIntentId);
     return paymentIntent;
