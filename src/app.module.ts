@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { EmailModule } from "./auth/email/email.module";
 import { ProvidersModule } from './providers/providers.module';
 import { AdminsModule } from './admins/admins.module';
+import { StripeModule } from './payment/stripe/stripe.module';
 @Module({
   imports: [
     EmailModule,
@@ -24,6 +25,7 @@ import { AdminsModule } from './admins/admins.module';
     }),
     ProvidersModule,
     AdminsModule,
+    StripeModule
   ],
   controllers: [AppController],
   providers: [AppService],
