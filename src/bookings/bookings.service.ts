@@ -17,7 +17,6 @@ export class BookingsService {
     provider_email: string,
     start_date: string,
     duration: number,
-    price_per_hour: number
   ) {
     const converted_date = new Date(start_date);
     const customer_id = await this.customerService.getCustomer(customer_email);
