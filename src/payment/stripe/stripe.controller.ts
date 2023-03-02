@@ -1,6 +1,8 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, SetMetadata, UseGuards } from '@nestjs/common';
 import { StripeService } from './stripe.service';
 import Stripe from 'stripe';
+import { RolesGuard } from 'src/auth/guards/roles.auth.guard';
+import { UserType } from 'src/auth/constants';
 
 @Controller('stripe')
 export class StripeController {
@@ -23,7 +25,6 @@ export class StripeController {
 
     return { accountId, accountLinkUrl };
   }
-
   @Post('create-payment-intent')
   async createPaymentIntent(
     @Body() body: { amount: number; accountId: string },
@@ -34,15 +35,11 @@ export class StripeController {
     );
     return paymentIntent;
   }
-
   @Post('create-checkout-session')
-  async createCheckoutSession(
-    @Body() body: { priceId: string; accountId: string },
-  ): Promise<Stripe.Checkout.Session> {
-    return await this.stripeService.createCheckoutSession(
-      body.priceId,
-      body.accountId,
-    );
+  async createCheckoutSession(@Body() body: { priceId: string }): Promise<any> {
+    const session = await this.stripeService.createCheckoutSession(body.priceId);
+
+    return { url: session.url };
   }
 
   @Get('capture-payment/:id')

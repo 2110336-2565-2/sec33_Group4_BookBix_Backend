@@ -46,21 +46,79 @@ export class StripeService {
     return paymentIntent;
   }
   
-  async createCheckoutSession(priceId: string, accountId: string): Promise<Stripe.Checkout.Session> {
+  async createCheckoutSession(priceId: string): Promise<Stripe.Checkout.Session> {
     const session = await this.stripe.checkout.sessions.create({
+      line_items: [{ price: priceId, quantity: 1 }],
       mode: 'payment',
-      line_items: [{price: priceId, quantity: 1}],
-      payment_intent_data: {
-        application_fee_amount: 123,
-        transfer_data: {destination: accountId},
-      },
       success_url: 'https://example.com/success',
       cancel_url: 'https://example.com/cancel',
     });
+  
     return session;
   }
+  
   async capturePayment(paymentIntentId: string): Promise<Stripe.PaymentIntent> {
     const paymentIntent = await this.stripe.paymentIntents.capture(paymentIntentId);
     return paymentIntent;
   }
+  
+  async createProduct(name: string): Promise<Stripe.Product> {
+    const product = await this.stripe.products.create({
+      name: name,
+    });
+    return product;
+  }
+
+  
+
+  async getProduct(productId: string): Promise<Stripe.Product> {
+    const product = await this.stripe.products.retrieve(productId);
+    return product;
+  }
+
+  async updateProduct(productId: string, metadata: Stripe.MetadataParam): Promise<Stripe.Product> {
+    const product = await this.stripe.products.update(productId, { metadata });
+    return product;
+  }
+
+  async listProducts(limit: number): Promise<Stripe.ApiList<Stripe.Product>> {
+    const products = await this.stripe.products.list({
+      limit,
+    });
+    return products;
+  }
+
+  async deleteProduct(productId: string): Promise<Stripe.DeletedProduct> {
+    const deletedProduct = await this.stripe.products.del(productId);
+    return deletedProduct;
+  }
+
+  
+  async createPrice(amount: number, currency: string, productId: string): Promise<Stripe.Price> {
+    const price = await this.stripe.prices.create({
+      unit_amount: amount,
+      currency,
+      product: productId,
+    });
+    return price;
+  }
+
+  async getPrice(priceId: string): Promise<Stripe.Price> {
+    const price = await this.stripe.prices.retrieve(priceId);
+    return price;
+  }
+
+  async updatePrice(priceId: string, metadata: Stripe.MetadataParam): Promise<Stripe.Price> {
+    const price = await this.stripe.prices.update(priceId, { metadata });
+    return price;
+  }
+
+  async listPrices(limit: number): Promise<Stripe.ApiList<Stripe.Price>> {
+    const prices = await this.stripe.prices.list({
+      limit,
+    });
+    return prices;
+  }
+
+
 }

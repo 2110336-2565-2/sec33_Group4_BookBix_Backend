@@ -7,5 +7,6 @@ import { StripeController } from './stripe.controller';
   imports: [ConfigModule],
   providers: [StripeService],
   controllers: [StripeController],
+  exports: [StripeService],
 })
 export class StripeModule {}
