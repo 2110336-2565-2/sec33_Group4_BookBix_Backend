@@ -104,14 +104,6 @@ export class AuthController {
   async login(@Request() req) {
     let user: any;
     const { email, password } = req.body;
-    // const token = req.cookies['access_token'];
-    // const decoded: any = this.jwtService.decode(token);
-
-    // if (!decoded || !decoded.type) {
-    //   throw new UnauthorizedException('Invalid token');
-    // }
-
-    // const userType = decoded.type;
     const userType = await this.authService.getUserType(email);
     switch (userType) {
       case UserType.CUSTOMER:
@@ -138,8 +130,6 @@ export class AuthController {
 
     const latest_device = getDevice(req.headers);
     console.log(latest_device);
-    
-    
 
     switch (userType) {
       case UserType.CUSTOMER:
@@ -168,32 +158,45 @@ export class AuthController {
     };
   }
   // TODO: create reset password feature
-  // // generate password reset token
-  // @Post('/resetpassword')
-  // async generatePasswordResetToken(@Body('email') email: string) {
-  //   return await this.authService.generatePasswordResetToken(email);
-  // }
+  // generate password reset token
+  @Post('/reset-password')
+  async generatePasswordResetToken(@Body('email') email: string) {
+    await this.authService.sendPasswordResetEmail(email);
+    return {
+      message: 'Password reset email has been sent to your email address',
+    };
+  }
 
-  // // validate password reset token
-  // @Get('/resetpassword/:token')
-  // async validatePasswordResetToken(@Param('token') token: string) {
-  //   return await this.authService.validatePasswordResetToken(token);
-  // }
+  // validate password reset token
+  @Get('/reset-password/:token')
+  async validatePasswordResetToken(@Param('token') token: string) {
+    const isValidToken = await this.authService.validatePasswordResetToken(
+      token,
+    );
+    console.log(isValidToken);
+    
+    if (isValidToken) {
+      return { message: 'Token is valid' };
+    } else {
+      throw new BadRequestException('Invalid token');
+    }
+  }
 
-  // // update password using token
-  // @Put('/resetpassword/:token')
-  // async updatePasswordUsingToken(
-  //   @Param('token') token: string,
-  //   @Body('password') password: string,
-  //   @Body('confirmPassword') confirmPassword: string,
-  // ) {
-  //   if (password !== confirmPassword) {
-  //     // password and confirm password do not match
-  //     throw new BadRequestException(
-  //       'Password and confirm password do not match',
-  //     );
-  //   }
+  // update password using token
+  @Put('/reset-password/:token')
+  async updatePasswordUsingToken(
+    @Param('token') token: string,
+    @Body('password') password: string,
+    @Body('confirmPassword') confirmPassword: string,
+  ) {
+    if (password !== confirmPassword) {
+      // password and confirm password do not match
+      throw new BadRequestException(
+        'Password and confirm password do not match',
+      );
+    }
 
-  //   return await this.authService.updatePasswordUsingToken(token, password);
-  // }
+    await this.authService.updatePasswordUsingToken(token, password);
+    return { message: 'Your password has been updated' };
+  }
 }
