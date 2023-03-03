@@ -19,13 +19,11 @@ export class CustomersService {
     private readonly emailService: EmailService,
   ) {}
 
-
   async insertNewCustomer(createCustomerDto: CreateCustomerDto) {
     const newCustomer = new this.customerModel(createCustomerDto);
     await newCustomer.save();
     return newCustomer;
   }
-  
 
   async updateLatestDevice(customerId: string, latest_device: string) {
     const customer = await this.customerModel.findById(customerId);
@@ -44,8 +42,30 @@ export class CustomersService {
     return customer;
   }
 
-    async getCustomerByEmail(email: string) {
+  async getCustomerByEmail(email: string) {
     const customer = await this.customerModel.findOne({ email });
+    return customer;
+  }
+
+  // update information
+  async updateInformation(
+    customerId: string,
+    firstname: string,
+    lastname: string,
+    sex: string,
+    birthdate: string,
+    email: string,
+  ) {
+    console.log(customerId);
+
+    const customer = await this.customerModel.findById(customerId);
+    customer.firstname = firstname;
+    customer.lastname = lastname;
+    customer.sex = sex;
+    customer.birthdate = birthdate;
+    customer.email = email;
+
+    await customer.save();
     return customer;
   }
 }
