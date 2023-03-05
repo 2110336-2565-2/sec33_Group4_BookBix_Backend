@@ -128,7 +128,10 @@ export class AuthController {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const latest_device = getDevice(req.headers);
+    const ipAddress =
+      req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    let latest_device = getDevice(req.headers);
+    latest_device += ' - ' + ipAddress.slice(7);
     console.log(latest_device);
 
     switch (userType) {
@@ -174,7 +177,7 @@ export class AuthController {
       token,
     );
     console.log(isValidToken);
-    
+
     if (isValidToken) {
       return { message: 'Token is valid' };
     } else {
