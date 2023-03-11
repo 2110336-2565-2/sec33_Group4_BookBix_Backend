@@ -28,18 +28,19 @@ const deviceDetector = new DeviceDetector();
 function getDevice(headers: { 'user-agent': string }): string {
   const userAgent = headers['user-agent'];
   const result = deviceDetector.parse(userAgent);
+  let device = '';
   // console.log(JSON.stringify(result));
   if (!result.os) {
-    return (
+    device =
       'POSTMAN - ' +
-      JSON.stringify(result.client.name).toUpperCase().slice(1, -1)
-    );
+      JSON.stringify(result.client.name).toUpperCase().slice(1, -1);
+  } else {
+    device =
+      JSON.stringify(result.os.name).toUpperCase().slice(1, -1) +
+      ' - ' +
+      JSON.stringify(result.client.name).toUpperCase().slice(1, -1);
   }
-  return (
-    JSON.stringify(result.os.name).toUpperCase().slice(1, -1) +
-    ' - ' +
-    JSON.stringify(result.client.name).toUpperCase().slice(1, -1)
-  );
+  return device;
 }
 @Controller('auth')
 export class AuthController {
@@ -131,12 +132,19 @@ export class AuthController {
     const ipAddress =
       req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     let latest_device = getDevice(req.headers);
-    latest_device += ' - ' + ipAddress.slice(7);
+    let date = new Date();
+    date.setUTCHours(date.getUTCHours() + 7);
+    let device_history =
+      latest_device + ' - ' + ipAddress.slice(7) + ' - ' + date;
     console.log(latest_device);
 
     switch (userType) {
       case UserType.CUSTOMER:
-        await this.customerService.updateLatestDevice(user.id, latest_device);
+        await this.customerService.updateLatestDevice(
+          user.id,
+          latest_device,
+          device_history,
+        );
         break;
       case UserType.ADMIN:
         await this.adminService.updateLatestDevice(user.id, latest_device);
