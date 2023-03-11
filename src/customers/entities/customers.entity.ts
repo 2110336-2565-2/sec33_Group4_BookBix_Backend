@@ -3,7 +3,7 @@ import { Schema, model, Document } from 'mongoose';
 export interface HistoryDevice {
   device: string;
   ip: string;
-  date: Date;
+  date: string;
 }
 
 export interface Customer extends Document {
