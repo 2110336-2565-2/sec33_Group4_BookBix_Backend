@@ -51,4 +51,26 @@ export class CustomersService {
     const customer = await this.customerModel.findOne({ email });
     return customer;
   }
+
+  // update information
+  async updateInformation(
+    customerId: string,
+    firstname: string,
+    lastname: string,
+    sex: string,
+    birthdate: string,
+    email: string,
+  ) {
+    console.log(customerId);
+
+    const customer = await this.customerModel.findById(customerId);
+    customer.firstname = firstname;
+    customer.lastname = lastname;
+    customer.sex = sex;
+    customer.birthdate = birthdate;
+    customer.email = email;
+
+    await customer.save();
+    return customer;
+  }
 }
