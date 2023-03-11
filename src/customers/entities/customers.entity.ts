@@ -10,6 +10,7 @@ export interface Customer extends Document {
   email: string;
   latest_device: string;
   date_created: Date;
+  device_history: string[];
 }
 
 export const CustomerSchema = new Schema({
@@ -43,6 +44,11 @@ export const CustomerSchema = new Schema({
   },
   latest_device: {
     type: String,
+  },
+  device_history: {
+    type: Array<string>,
+    required: true,
+    default: [],
   },
 });
 
