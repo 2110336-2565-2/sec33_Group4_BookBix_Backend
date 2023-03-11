@@ -73,4 +73,9 @@ export class CustomersService {
     await customer.save();
     return customer;
   }
+
+  async getHistory(customerId: string) {
+    const customer = await this.customerModel.findById(customerId);
+    return customer.device_history;
+  }
 }

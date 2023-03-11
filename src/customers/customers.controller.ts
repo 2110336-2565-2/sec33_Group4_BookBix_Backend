@@ -56,4 +56,10 @@ export class CustomersController {
       };
     }
   }
+
+  @Get('/:customerId/history')
+  async getHistory(@Param('customerId') customerId: string) {
+    const history = await this.customerService.getHistory(customerId);
+    return history;
+  }
 }
