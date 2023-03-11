@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Customer } from './entities/customers.entity';
+import { Customer, HistoryDevice } from './entities/customers.entity';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import * as crypto from 'crypto';
 import { DateTime } from 'luxon';
@@ -28,7 +28,7 @@ export class CustomersService {
   async updateLatestDevice(
     customerId: string,
     latest_device: string,
-    device_history: string,
+    device_history: HistoryDevice,
   ) {
     const customer = await this.customerModel.findById(customerId);
     customer.latest_device = latest_device;
@@ -61,8 +61,6 @@ export class CustomersService {
     birthdate: string,
     email: string,
   ) {
-    console.log(customerId);
-
     const customer = await this.customerModel.findById(customerId);
     customer.firstname = firstname;
     customer.lastname = lastname;

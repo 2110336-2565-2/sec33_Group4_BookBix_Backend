@@ -14,7 +14,6 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import * as bcrypt from 'bcrypt';
-import { LocalAuthGuard } from './guards/local.auth.guard';
 import { UserType } from './constants';
 import { CustomersService } from 'src/customers/customers.service';
 import { AdminsService } from 'src/admins/admins.service';
@@ -23,7 +22,8 @@ import DeviceDetector = require('device-detector-js');
 import { JwtService } from '@nestjs/jwt';
 import { JwtAuthService } from './jwt.service';
 import { RolesGuard } from './guards/roles.auth.guard';
-import { AuthGuard } from '@nestjs/passport';
+import { HistoryDevice } from 'src/customers/entities/customers.entity';
+
 const deviceDetector = new DeviceDetector();
 function getDevice(headers: { 'user-agent': string }): string {
   const userAgent = headers['user-agent'];
@@ -134,9 +134,11 @@ export class AuthController {
     let latest_device = getDevice(req.headers);
     let date = new Date();
     date.setUTCHours(date.getUTCHours() + 7);
-    let device_history =
-      latest_device + ' - ' + ipAddress.slice(7) + ' - ' + date;
-    console.log(latest_device);
+    let device_history: HistoryDevice = {
+      device: latest_device,
+      ip: ipAddress.slice(7),
+      date: date,
+    };
 
     switch (userType) {
       case UserType.CUSTOMER:
