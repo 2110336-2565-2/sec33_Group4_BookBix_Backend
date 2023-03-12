@@ -106,15 +106,19 @@ export class AuthController {
     let user: any;
     const { email, password } = req.body;
     const userType = await this.authService.getUserType(email);
+    let userTypeString;
     switch (userType) {
       case UserType.CUSTOMER:
         user = await this.customerService.getCustomer(email);
+        userTypeString = 'customer';
         break;
       case UserType.ADMIN:
         user = await this.adminService.getAdmin(email);
+        userTypeString = 'admin';
         break;
       case UserType.PROVIDER:
         user = await this.providerService.getProvider(email);
+        userTypeString = 'provider';
         break;
       default:
         throw new BadRequestException('Invalid user type');
@@ -174,10 +178,12 @@ export class AuthController {
     console.log(newToken);
     this.jwtAuthService.createCookie(req.res, newToken);
     return {
-      user,
+      user: {
+        _id: user._id,
+        username: user.username,
+        role: userTypeString,
+      },
       msg: 'User logged in',
-      isLatestDevice: true,
-      access_token: newToken,
     };
   }
   // TODO: create reset password feature
