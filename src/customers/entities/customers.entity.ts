@@ -1,5 +1,11 @@
 import { Schema, model, Document } from 'mongoose';
 
+export interface HistoryDevice {
+  device: string;
+  ip: string;
+  date: string;
+}
+
 export interface Customer extends Document {
   firstname: string;
   sex: string;
@@ -10,6 +16,7 @@ export interface Customer extends Document {
   email: string;
   latest_device: string;
   date_created: Date;
+  device_history: HistoryDevice[];
 }
 
 export const CustomerSchema = new Schema({
@@ -43,6 +50,11 @@ export const CustomerSchema = new Schema({
   },
   latest_device: {
     type: String,
+  },
+  device_history: {
+    type: Array<HistoryDevice>,
+    required: true,
+    default: [],
   },
 });
 
