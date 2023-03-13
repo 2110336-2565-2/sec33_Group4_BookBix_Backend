@@ -5,6 +5,17 @@ import { BookingsService } from './bookings.service';
 export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
 
+  @Get('/')
+  async getAllBookings(
+    @Request() req,
+    @Body('customer_email') customer_email: string,
+  ) {
+    const result = await this.bookingsService.getCustomerBookings(
+      customer_email,
+    );
+    return result;
+  }
+
   @Get('/unavailabletimeslot')
   async getUnavailableTimeslot(
     @Request() req,

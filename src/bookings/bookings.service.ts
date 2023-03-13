@@ -4,6 +4,7 @@ import mongoose, { Model } from 'mongoose';
 import { CustomersService } from 'src/customers/customers.service';
 import { ProvidersService } from 'src/providers/providers.service';
 import { Booking } from './bookings.model';
+
 @Injectable()
 export class BookingsService {
   constructor(
@@ -86,5 +87,54 @@ export class BookingsService {
       formattedDates.push([startDateTime, endDateTime, startDateString]);
     }
     return formattedDates;
+  }
+
+  //Get all bookings of a customer
+  async getCustomerBookings(customer_email: string) {
+    const customer_id = await this.customerService.getCustomer(customer_email);
+    const customerBookings = await this.bookingModel
+      .find({ customer_id: customer_id })
+      .exec();
+
+    // loop through the bookings and change the format
+    const formattedBookings = [];
+    for (const booking of customerBookings) {
+      const startDate = new Date(booking.start_date);
+
+      // Format HH:MM/YYYY-MM-DD
+      const startDateString =
+        startDate.toLocaleTimeString('en-US', {
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit',
+        }) +
+        '/' +
+        startDate.toISOString().slice(0, 10);
+
+      const endDate = new Date(
+        startDate.getTime() + booking.duration * 3600000,
+      );
+      const endDateString =
+        endDate.toLocaleTimeString('en-US', {
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit',
+        }) +
+        '/' +
+        endDate.toISOString().slice(0, 10);
+
+      formattedBookings.push({
+        id: booking._id,
+        location_name: '', // TODO: get location name
+        location_id: booking.location_id,
+        price: 300, // TODO: get price
+        period: {
+          start: startDateString,
+          end: endDateString,
+        },
+        status: booking.status,
+      });
+    }
+    return formattedBookings;
   }
 }
