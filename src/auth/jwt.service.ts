@@ -8,7 +8,7 @@ export class JwtAuthService {
 
   async createCookie(res: Response, token: string): Promise<void> {
     res.cookie('access_token', token, {
-      httpOnly: false,
+      httpOnly: true,
       maxAge: 3600000, // 1 hour
     });
   }
