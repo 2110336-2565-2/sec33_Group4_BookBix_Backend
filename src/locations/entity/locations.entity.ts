@@ -1,9 +1,11 @@
 import { Schema, model, Document } from 'mongoose';
 
 export interface Review {
+  title: string;
   username: string;
   rating: number;
   text: string;
+  dateCreated: Date;
 }
 
 export interface Time {
@@ -44,6 +46,9 @@ export const LocationSchema = new Schema({
     type: [
       {
         _id: false,
+        title: {
+          type: String,
+        },
         username: {
           type: String,
         },
@@ -52,6 +57,9 @@ export const LocationSchema = new Schema({
         },
         text: {
           type: String,
+        },
+        dateCreated: {
+          type: Date,
         },
       },
     ],

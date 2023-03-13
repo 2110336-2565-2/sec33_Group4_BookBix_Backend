@@ -6,6 +6,7 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
+import { title } from 'process';
 import { LocationsService } from './locations.service';
 
 @Controller('locations')
@@ -15,6 +16,7 @@ export class ReviewsController {
   @Post(':locationId/reviews')
   async addReview(
     @Param('locationId') locationId: string,
+    @Body('title') title: string,
     @Body('username') username: string,
     @Body('rating') rating: number,
     @Body('text') text: string,
@@ -24,9 +26,11 @@ export class ReviewsController {
     }
     const review = await this.locationsService.addReview(
       locationId,
+      title,
       username,
       rating,
       text,
+      new Date(),
     );
     this.locationsService.calculateRating(locationId);
     return {
