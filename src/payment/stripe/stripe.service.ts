@@ -50,8 +50,8 @@ export class StripeService {
     const session = await this.stripe.checkout.sessions.create({
       line_items: [{ price: priceId, quantity: 1 }],
       mode: 'payment',
-      success_url: 'https://example.com/success',
-      cancel_url: 'https://example.com/cancel',
+      success_url: 'http://localhost:3000/me/bookings',
+      cancel_url: 'http://localhost:3000/me/bookings',
     });
   
     return session;
