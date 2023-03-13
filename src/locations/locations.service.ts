@@ -15,7 +15,6 @@ export class LocationsService {
     rating: number,
     text: string,
   ) {
-    console.log('longdo2');
     const location = await this.locationModel.findById(locationId);
     location.reviews.push({ username, rating, text });
     return location.save();

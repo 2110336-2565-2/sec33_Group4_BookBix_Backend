@@ -41,6 +41,7 @@ export const LocationSchema = new Schema({
   reviews: {
     type: [
       {
+        _id: false,
         username: {
           type: String,
         },

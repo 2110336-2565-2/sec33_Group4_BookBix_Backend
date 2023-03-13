@@ -19,7 +19,6 @@ export class ReviewsController {
     @Body('rating') rating: number,
     @Body('text') text: string,
   ) {
-    console.log('longdo');
     if (!username || !rating || !text) {
       throw new HttpException('Invalid request body', HttpStatus.BAD_REQUEST);
     }
