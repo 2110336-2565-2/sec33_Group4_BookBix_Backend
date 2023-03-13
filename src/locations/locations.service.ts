@@ -19,4 +19,13 @@ export class LocationsService {
     location.reviews.push({ username, rating, text });
     return location.save();
   }
+
+  async calculateRating(locationId: string) {
+    const location = await this.locationModel.findById(locationId);
+    const totalRating = location.reviews.reduce((acc, review) => {
+      return acc + review.rating;
+    }, 0);
+    location.avg_rating = totalRating / location.reviews.length;
+    return location.save();
+  }
 }

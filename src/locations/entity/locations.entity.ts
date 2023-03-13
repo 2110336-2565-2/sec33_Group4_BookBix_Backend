@@ -20,6 +20,8 @@ export interface Location extends Document {
   reviews: Review[];
   time: Time[];
   available_days: string[];
+  price: number;
+  avg_rating: number;
 }
 
 export const LocationSchema = new Schema({
@@ -68,6 +70,12 @@ export const LocationSchema = new Schema({
   },
   available_days: {
     type: [String],
+  },
+  price: {
+    type: Number,
+  },
+  avg_rating: {
+    type: Number,
   },
 });
 

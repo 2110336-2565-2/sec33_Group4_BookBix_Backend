@@ -28,6 +28,7 @@ export class ReviewsController {
       rating,
       text,
     );
+    this.locationsService.calculateRating(locationId);
     return {
       status: HttpStatus.CREATED,
       msg: 'Review added',
