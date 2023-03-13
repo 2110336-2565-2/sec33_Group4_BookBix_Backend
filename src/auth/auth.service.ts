@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable, NotAcceptableException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CustomersService } from 'src/customers/customers.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -16,7 +22,7 @@ export class AuthService {
     private readonly adminService: AdminsService,
     private readonly providerService: ProvidersService,
     private jwtService: JwtService,
-    private readonly emailService: EmailService
+    private readonly emailService: EmailService,
   ) {}
 
   async registerCustomer(
@@ -28,6 +34,10 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, saltOrRounds);
     const now = new Date();
     const customerDto = new CreateCustomerDto();
+    let exist_customer = await this.customerService.getCustomer(email);
+    if (exist_customer) {
+      throw new NotAcceptableException('User already exists');
+    }
     customerDto.username = username;
     customerDto.password = hashedPassword;
     customerDto.email = email;
@@ -171,7 +181,7 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  async getEmailBody(name:string, emailSubject:string, token:string){
+  async getEmailBody(name: string, emailSubject: string, token: string) {
     const resetUrl = `http://localhost:3000/auth/reset-password/${token}`;
     const emailBody = `
           <p>Hello ${name},</p>
@@ -183,7 +193,7 @@ export class AuthService {
         `;
     return emailBody;
   }
-  
+
   async sendPasswordResetEmail(email: string) {
     const userType = await this.getUserType(email);
     if (!userType) {
@@ -206,16 +216,22 @@ export class AuthService {
         throw new BadRequestException('Invalid user type');
     }
     console.log(user.name);
-    
+
     const token = await this.generatePasswordResetToken(user, userType);
     const emailSubject = 'Reset your password on Bookbix';
-    const emailBody = await this.getEmailBody(user.username, emailSubject, token);
+    const emailBody = await this.getEmailBody(
+      user.username,
+      emailSubject,
+      token,
+    );
 
     await this.emailService.sendEmail(email, emailSubject, emailBody);
   }
 
-
-  async generatePasswordResetToken(user: any, userType:string): Promise<string> {
+  async generatePasswordResetToken(
+    user: any,
+    userType: string,
+  ): Promise<string> {
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -239,7 +255,7 @@ export class AuthService {
       return false;
     }
     console.log(decoded);
-    
+
     let user: any;
     switch (decoded.type) {
       case UserType.CUSTOMER:
@@ -250,20 +266,23 @@ export class AuthService {
         break;
       case UserType.PROVIDER:
         user = await this.providerService.getProviderById(decoded.id);
-    
+
         break;
-    
+
       default:
         break;
     }
-    
+
     if (!user) {
       return false;
     }
     return true;
   }
 
-  async updatePasswordUsingToken(token: string, newPassword: string): Promise<void> {
+  async updatePasswordUsingToken(
+    token: string,
+    newPassword: string,
+  ): Promise<void> {
     let decoded;
     try {
       decoded = this.jwtService.verify(token);
@@ -281,7 +300,7 @@ export class AuthService {
       case UserType.PROVIDER:
         user = await this.providerService.getProviderById(decoded.id);
         break;
-    
+
       default:
         break;
     }
@@ -293,6 +312,4 @@ export class AuthService {
     user.password = hashedPassword;
     await user.save();
   }
-
-  
 }
