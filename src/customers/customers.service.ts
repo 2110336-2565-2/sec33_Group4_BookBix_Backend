@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Customer } from './entities/customers.entity';
+import { Customer, HistoryDevice } from './entities/customers.entity';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import * as crypto from 'crypto';
 import { DateTime } from 'luxon';
@@ -25,9 +25,14 @@ export class CustomersService {
     return newCustomer;
   }
 
-  async updateLatestDevice(customerId: string, latest_device: string) {
+  async updateLatestDevice(
+    customerId: string,
+    latest_device: string,
+    device_history: HistoryDevice,
+  ) {
     const customer = await this.customerModel.findById(customerId);
     customer.latest_device = latest_device;
+    customer.device_history.push(device_history);
     await customer.save();
     return customer;
   }
@@ -56,8 +61,6 @@ export class CustomersService {
     birthdate: string,
     email: string,
   ) {
-    console.log(customerId);
-
     const customer = await this.customerModel.findById(customerId);
     customer.firstname = firstname;
     customer.lastname = lastname;
@@ -67,5 +70,10 @@ export class CustomersService {
 
     await customer.save();
     return customer;
+  }
+
+  async getHistory(customerId: string) {
+    const customer = await this.customerModel.findById(customerId);
+    return customer.device_history.reverse();
   }
 }
