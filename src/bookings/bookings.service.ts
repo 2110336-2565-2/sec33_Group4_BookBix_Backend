@@ -36,6 +36,9 @@ export class BookingsService {
     return newBooking;
   }
 
+  
+  
+
   //Get all unavailable timesot of a provider
   async getUnavailableTimeslot(provider_email: string, location_id: string) {
     const today = new Date();

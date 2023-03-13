@@ -54,4 +54,5 @@ export class BookingsController {
       bookingId: result.id,
     };
   }
+
 }
