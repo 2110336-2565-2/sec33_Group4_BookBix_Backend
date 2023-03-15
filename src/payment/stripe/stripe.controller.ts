@@ -32,6 +32,7 @@ export class StripeController {
     @Body('unitAmount') unitAmount: number,
     @Body('accountId') accountId: string,
   ) {
+    // unit amount is in cents so we multiply by 100
     const { product, price } = await this.stripeService.createProductAndPrice(name, description, unitAmount*100, accountId);
     return { product, price };
   }
