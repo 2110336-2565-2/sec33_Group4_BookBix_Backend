@@ -28,5 +28,15 @@ export class AdminsService {
     await admin.save();
     return admin;
   }
+
+  async getAdminById(adminId: string) {
+    const admin = await this.adminModel.findById(adminId);
+    return admin;
+  }
+
+  async getAdminByEmail(email: string) {
+    const admin = await this.adminModel.findOne({ email });
+    return admin;
+  }
   
 }

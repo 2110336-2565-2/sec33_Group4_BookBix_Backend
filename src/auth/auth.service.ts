@@ -1,4 +1,10 @@
-import { Injectable, NotAcceptableException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CustomersService } from 'src/customers/customers.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -8,6 +14,7 @@ import { ProvidersService } from '../providers/providers.service';
 import { CreateCustomerDto } from '../customers/dto/create-customer.dto';
 import { CreateAdminDto } from '../admins/dto/create-admin.dto';
 import { CreateProviderDto } from 'src/providers/dto/create-provider.dto';
+import { EmailService } from './email/email.service';
 @Injectable()
 export class AuthService {
   constructor(
@@ -15,6 +22,7 @@ export class AuthService {
     private readonly adminService: AdminsService,
     private readonly providerService: ProvidersService,
     private jwtService: JwtService,
+    private readonly emailService: EmailService,
   ) {}
 
   async registerCustomer(
@@ -26,6 +34,10 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, saltOrRounds);
     const now = new Date();
     const customerDto = new CreateCustomerDto();
+    let exist_customer = await this.customerService.getCustomer(email);
+    if (exist_customer) {
+      throw new NotAcceptableException('User already exists');
+    }
     customerDto.username = username;
     customerDto.password = hashedPassword;
     customerDto.email = email;
@@ -167,5 +179,145 @@ export class AuthService {
 
   async generateToken(payload: any) {
     return this.jwtService.sign(payload);
+  }
+
+  async getEmailBody(name: string, emailSubject: string, token: string) {
+    const resetUrl = `http://localhost:3000/auth/reset-password/${token}`;
+    const emailBody = `
+          <p>Hello ${name},</p>
+          <p>You recently requested to reset your password for your My App account. Click the link below to reset it:</p>
+          <a href="${resetUrl}">${resetUrl}</a>
+          <p>If you did not request a password reset, please ignore this email.</p>
+          <p>Thanks,</p>
+          <p>Bookbix Team</p>
+        `;
+    return emailBody;
+  }
+
+  async sendPasswordResetEmail(email: string) {
+    const userType = await this.getUserType(email);
+    if (!userType) {
+      throw new NotFoundException('User not found');
+    }
+
+    let user: any;
+
+    switch (userType) {
+      case UserType.CUSTOMER:
+        user = await this.customerService.getCustomerByEmail(email);
+        break;
+      case UserType.ADMIN:
+        user = await this.adminService.getAdminByEmail(email);
+        break;
+      case UserType.PROVIDER:
+        user = await this.providerService.getProviderByEmail(email);
+        break;
+      default:
+        throw new BadRequestException('Invalid user type');
+    }
+    console.log(user.name);
+
+    const token = await this.generatePasswordResetToken(user, userType);
+    const emailSubject = 'Reset your password on Bookbix';
+    const emailBody = await this.getEmailBody(
+      user.username,
+      emailSubject,
+      token,
+    );
+
+    await this.emailService.sendEmail(email, emailSubject, emailBody);
+  }
+
+  
+async generatePasswordResetToken(
+  user: any,
+  userType: string,
+): Promise<string> {
+  if (!user) {
+    throw new NotFoundException('User not found');
+  }
+
+  const payload = {
+    id: user.id,
+    type: userType,
+    sub: user.email,
+  };
+  console.log(payload);
+
+  const jwtToken = this.jwtService.sign(payload, { expiresIn: '1h' });
+  const base64Token = Buffer.from(jwtToken).toString('base64');
+
+  return base64Token;
+}
+
+async validatePasswordResetToken(token: string): Promise<boolean> {
+  const decodedToken = Buffer.from(token, 'base64').toString('utf-8');
+
+
+  let decoded;
+  try {
+    decoded = this.jwtService.verify(decodedToken);
+  } catch (error) {
+    return false;
+  }
+  console.log(decoded);
+
+  let user: any;
+  switch (decoded.type) {
+    case UserType.CUSTOMER:
+      user = await this.customerService.getCustomerById(decoded.id);
+      break;
+    case UserType.ADMIN:
+      user = await this.adminService.getAdminById(decoded.id);
+      break;
+    case UserType.PROVIDER:
+      user = await this.providerService.getProviderById(decoded.id);
+
+      break;
+
+    default:
+      break;
+  }
+
+  if (!user) {
+    return false;
+  }
+  return true;
+}
+
+
+  async updatePasswordUsingToken(
+    token: string,
+    newPassword: string,
+  ): Promise<void> {
+    const decodedToken = Buffer.from(token, 'base64').toString('utf-8');
+    let decoded;
+    try {
+      decoded = this.jwtService.verify(decodedToken);
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
+    let user: any;
+    switch (decoded.type) {
+      case UserType.CUSTOMER:
+        user = await this.customerService.getCustomerById(decoded.id);
+        break;
+      case UserType.ADMIN:
+        user = await this.adminService.getAdminById(decoded.id);
+        break;
+      case UserType.PROVIDER:
+        user = await this.providerService.getProviderById(decoded.id);
+        break;
+
+      default:
+        break;
+    }
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
   }
 }

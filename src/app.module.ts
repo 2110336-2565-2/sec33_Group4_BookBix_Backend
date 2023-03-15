@@ -10,7 +10,7 @@ import { EmailModule } from "./auth/email/email.module";
 import { ProvidersModule } from './providers/providers.module';
 import { AdminsModule } from './admins/admins.module';
 import { StripeModule } from './payment/stripe/stripe.module';
-import { LocationModule } from './location/location.module';
+import { LocationsModule } from './locations/locations.module';
 @Module({
   imports: [
     EmailModule,
@@ -27,7 +27,7 @@ import { LocationModule } from './location/location.module';
     ProvidersModule,
     AdminsModule,
     StripeModule,
-    LocationModule
+    LocationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

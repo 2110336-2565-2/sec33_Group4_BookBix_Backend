@@ -14,7 +14,6 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import * as bcrypt from 'bcrypt';
-import { LocalAuthGuard } from './guards/local.auth.guard';
 import { UserType } from './constants';
 import { CustomersService } from 'src/customers/customers.service';
 import { AdminsService } from 'src/admins/admins.service';
@@ -23,23 +22,25 @@ import DeviceDetector = require('device-detector-js');
 import { JwtService } from '@nestjs/jwt';
 import { JwtAuthService } from './jwt.service';
 import { RolesGuard } from './guards/roles.auth.guard';
-import { AuthGuard } from '@nestjs/passport';
+import { HistoryDevice } from 'src/customers/entities/customers.entity';
+
 const deviceDetector = new DeviceDetector();
 function getDevice(headers: { 'user-agent': string }): string {
   const userAgent = headers['user-agent'];
   const result = deviceDetector.parse(userAgent);
+  let device = '';
   // console.log(JSON.stringify(result));
   if (!result.os) {
-    return (
+    device =
       'POSTMAN - ' +
-      JSON.stringify(result.client.name).toUpperCase().slice(1, -1)
-    );
+      JSON.stringify(result.client.name).toUpperCase().slice(1, -1);
+  } else {
+    device =
+      JSON.stringify(result.os.name).toUpperCase().slice(1, -1) +
+      ' - ' +
+      JSON.stringify(result.client.name).toUpperCase().slice(1, -1);
   }
-  return (
-    JSON.stringify(result.os.name).toUpperCase().slice(1, -1) +
-    ' - ' +
-    JSON.stringify(result.client.name).toUpperCase().slice(1, -1)
-  );
+  return device;
 }
 @Controller('auth')
 export class AuthController {
@@ -104,24 +105,20 @@ export class AuthController {
   async login(@Request() req) {
     let user: any;
     const { email, password } = req.body;
-    // const token = req.cookies['access_token'];
-    // const decoded: any = this.jwtService.decode(token);
-
-    // if (!decoded || !decoded.type) {
-    //   throw new UnauthorizedException('Invalid token');
-    // }
-
-    // const userType = decoded.type;
     const userType = await this.authService.getUserType(email);
+    let userTypeString;
     switch (userType) {
       case UserType.CUSTOMER:
         user = await this.customerService.getCustomer(email);
+        userTypeString = 'customer';
         break;
       case UserType.ADMIN:
         user = await this.adminService.getAdmin(email);
+        userTypeString = 'admin';
         break;
       case UserType.PROVIDER:
         user = await this.providerService.getProvider(email);
+        userTypeString = 'provider';
         break;
       default:
         throw new BadRequestException('Invalid user type');
@@ -136,14 +133,34 @@ export class AuthController {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const latest_device = getDevice(req.headers);
-    console.log(latest_device);
-    
-    
+    const ipAddress =
+      req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    let latest_device = getDevice(req.headers);
+
+    let date = new Date();
+    date.setUTCHours(date.getUTCHours() + 7);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
+
+    const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+
+    let device_history: HistoryDevice = {
+      device: latest_device,
+      ip: ipAddress.slice(7),
+      date: formattedDate,
+    };
 
     switch (userType) {
       case UserType.CUSTOMER:
-        await this.customerService.updateLatestDevice(user.id, latest_device);
+        await this.customerService.updateLatestDevice(
+          user.id,
+          latest_device,
+          device_history,
+        );
         break;
       case UserType.ADMIN:
         await this.adminService.updateLatestDevice(user.id, latest_device);
@@ -155,45 +172,60 @@ export class AuthController {
         throw new BadRequestException('Invalid user type');
     }
 
-    const payload = { id: user.id, email: user.email, type: userType };
+    const payload = { id: user.id, username: user.username, type: userType };
     const newToken = this.jwtService.sign(payload);
     console.log(payload);
     console.log(newToken);
     this.jwtAuthService.createCookie(req.res, newToken);
     return {
-      user,
+      user: {
+        _id: user._id,
+        username: user.username,
+        role: userTypeString,
+      },
       msg: 'User logged in',
-      isLatestDevice: true,
-      access_token: newToken,
     };
   }
   // TODO: create reset password feature
-  // // generate password reset token
-  // @Post('/resetpassword')
-  // async generatePasswordResetToken(@Body('email') email: string) {
-  //   return await this.authService.generatePasswordResetToken(email);
-  // }
+  // generate password reset token
+  @Post('/reset-password')
+  async generatePasswordResetToken(@Body('email') email: string) {
+    await this.authService.sendPasswordResetEmail(email);
+    return {
+      message: 'Password reset email has been sent to your email address',
+    };
+  }
 
-  // // validate password reset token
-  // @Get('/resetpassword/:token')
-  // async validatePasswordResetToken(@Param('token') token: string) {
-  //   return await this.authService.validatePasswordResetToken(token);
-  // }
+  // validate password reset token
+  @Get('/reset-password/:token')
+  async validatePasswordResetToken(@Param('token') token: string) {
+    const isValidToken = await this.authService.validatePasswordResetToken(
+      token,
+    );
+    console.log(isValidToken);
 
-  // // update password using token
-  // @Put('/resetpassword/:token')
-  // async updatePasswordUsingToken(
-  //   @Param('token') token: string,
-  //   @Body('password') password: string,
-  //   @Body('confirmPassword') confirmPassword: string,
-  // ) {
-  //   if (password !== confirmPassword) {
-  //     // password and confirm password do not match
-  //     throw new BadRequestException(
-  //       'Password and confirm password do not match',
-  //     );
-  //   }
+    if (isValidToken) {
+      return { message: 'Token is valid' };
+    } else {
+      throw new BadRequestException('Invalid token');
+    }
+  }
 
-  //   return await this.authService.updatePasswordUsingToken(token, password);
-  // }
+  // update password using token
+  @Put('/reset-password/:token')
+  async updatePasswordUsingToken(
+    @Param('token') token: string,
+    @Body('password') password: string,
+    @Body('confirmPassword') confirmPassword: string,
+  ) {
+    if (password !== confirmPassword) {
+      // password and confirm password do not match
+      throw new BadRequestException(
+        'Password and confirm password do not match',
+      );
+    }
+
+    await this.authService.updatePasswordUsingToken(token, password);
+    return { message: 'Your password has been updated' };
+  }
 }
