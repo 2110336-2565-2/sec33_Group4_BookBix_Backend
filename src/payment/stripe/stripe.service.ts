@@ -62,11 +62,26 @@ export class StripeService {
     return paymentIntent;
   }
   
-  async createProduct(name: string): Promise<Stripe.Product> {
+  async createProductAndPrice(name: string, description: string, unitAmount: number, accountId: string): Promise<{ product: Stripe.Product, price: Stripe.Price }> {
     const product = await this.stripe.products.create({
-      name: name,
+      name,
+      description,
+      metadata: {
+        key: 'value',
+      },
+    }, {
+      stripeAccount: accountId,
     });
-    return product;
+
+    const price = await this.stripe.prices.create({
+      product: product.id,
+      unit_amount: unitAmount,
+      currency: 'thb',
+    }, {
+      stripeAccount: accountId,
+    });
+
+    return { product, price };
   }
 
   
