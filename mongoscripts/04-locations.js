@@ -37,7 +37,7 @@ db.locations.insertMany([
       'Saturday',
       'Sunday',
     ],
-    price: '300',
+    price: 300,
     avg_rating: 4.5,
   },
   {
@@ -66,7 +66,7 @@ db.locations.insertMany([
     ],
     time: { open_time: '08:00', close_time: '16:00' },
     available_days: ['Monday', 'Wednesday', 'Friday', 'Sunday'],
-    price: '300',
+    price: 300,
     avg_rating: 4.75,
   },
   {
@@ -95,7 +95,7 @@ db.locations.insertMany([
     ],
     time: { open_time: '10:00', close_time: '16:00' },
     available_days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-    price: '200',
+    price: 200,
     avg_rating: 4.25,
   },
   {
@@ -123,7 +123,7 @@ db.locations.insertMany([
     ],
     time: { open_time: '10:00', close_time: '16:00' },
     available_days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-    price: '350',
+    price: 350,
     avg_rating: 4.75,
   },
 ]);
