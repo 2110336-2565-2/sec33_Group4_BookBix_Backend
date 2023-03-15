@@ -25,6 +25,12 @@ export class StripeController {
 
     return { accountId, accountLinkUrl };
   }
+  @Post('create-checkout-session')
+  async createCheckoutSession(@Body() body: { priceId: string }): Promise<any> {
+    const session = await this.stripeService.createCheckoutSession(body.priceId);
+
+    return { url: session.url };
+  }
   @Post('create-product')
   async createProductAndPrice(
     @Body('name') name: string,
@@ -37,13 +43,5 @@ export class StripeController {
     return { product, price };
   }
 
-  @Get('capture-payment/:id')
-  async capturePayment(
-    @Param('id') paymentIntentId: string,
-  ): Promise<Stripe.PaymentIntent> {
-    const paymentIntent = await this.stripeService.capturePayment(
-      paymentIntentId,
-    );
-    return paymentIntent;
-  }
+  
 }
