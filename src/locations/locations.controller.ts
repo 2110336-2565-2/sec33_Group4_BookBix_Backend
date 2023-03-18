@@ -5,8 +5,9 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
 } from '@nestjs/common';
-import { title } from 'process';
+import { Time } from './entity/locations.entity';
 import { LocationsService } from './locations.service';
 
 @Controller('locations')
@@ -36,6 +37,29 @@ export class ReviewsController {
     return {
       status: HttpStatus.CREATED,
       msg: 'Review added',
+    };
+  }
+
+  @Put(':locationId')
+  async updateLocation(
+    @Param('locationId') locationId: string,
+    @Body('time') time: Time,
+    @Body('available_days') available_days: string[],
+  ) {
+    if (!time || !available_days) {
+      return {
+        status: HttpStatus.BAD_REQUEST,
+        msg: 'Please provide time or available days',
+      };
+    }
+    const location = await this.locationsService.updateLocation(
+      locationId,
+      time,
+      available_days,
+    );
+    return {
+      status: HttpStatus.OK,
+      msg: 'Location updated',
     };
   }
 }
