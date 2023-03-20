@@ -83,14 +83,5 @@ export class StripeService {
 
   
 
-  // async constructWebhookEvent(payload: , signature: string | string[]): Promise<Stripe.Event> {
-  //   const event = this.stripe.webhooks.constructEvent(
-  //     payload,
-  //     signature,
-  //     process.env.STRIPE_ENDPOINT_SECRET
-  //     );
-
-  //   return event;
-  // }
 
 }
