@@ -28,4 +28,59 @@ export class LocationsService {
     location.avg_rating = totalRating / location.reviews.length;
     return location.save();
   }
+
+  async getLocation(locationName: string, minPrice: number, maxPrice: number, locationType: string, locationFunction: string){
+    let location;
+    if(locationName == '' && locationType == '' && locationFunction == ''){
+      location = await this.locationModel.find({ 'price': {$gte: minPrice, $lte: maxPrice} });
+      return location;
+    }else if(locationName !== '' && locationType == '' && locationFunction == ''){
+      location = await this.locationModel.find({
+        'name': locationName, 
+        'price':{$gte: minPrice, $lte: maxPrice}
+      });
+      return location;
+    }else if(locationName == '' && locationType !== '' && locationFunction == ''){
+      location = await this.locationModel.find({ 
+        'price':  {$gte: minPrice, $lte: maxPrice},
+        'type': locationType
+      });
+      return location;
+    }else if(locationName == '' && locationType == '' && locationFunction !== ''){
+      location = await this.locationModel.find({ 
+        'price': {$gte: minPrice, $lte: maxPrice},
+        'function': locationFunction
+      });
+      return location;
+    }else if(locationName !== '' && locationType !== '' && locationFunction == ''){
+      location = await this.locationModel.find({ 
+        'name': locationName, 
+        'price': {$gte: minPrice, $lte: maxPrice},
+        'type': locationType
+      });
+      return location;
+    }else if(locationName !== '' && locationType == '' && locationFunction !== ''){
+      location = await this.locationModel.find({ 
+        'name': locationName, 
+        'price': {$gte: minPrice, $lte: maxPrice},
+        'function': locationFunction
+      });
+      return location;
+    }else if(locationName == '' && locationType !== '' && locationFunction !== ''){
+      location = await this.locationModel.find({ 
+        'price': {$gte: minPrice, $lte: maxPrice}, 
+        'type': locationType, 
+        'function': locationFunction 
+      });
+      return location;
+    }else{
+      location = await this.locationModel.find({ 
+        'name': locationName, 
+        'price':  {$gte: minPrice, $lte: maxPrice},
+        'type': locationType,
+        'function': locationFunction
+      });
+      return location;
+    }
+  }
 }
