@@ -11,12 +11,14 @@ export class LocationsService {
 
   async addReview(
     locationId: string,
+    title: string,
     username: string,
     rating: number,
     text: string,
+    dateCreated: Date,
   ) {
     const location = await this.locationModel.findById(locationId);
-    location.reviews.push({ username, rating, text });
+    location.reviews.push({ title, username, rating, text, dateCreated });
     return location.save();
   }
 

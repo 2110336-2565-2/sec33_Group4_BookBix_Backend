@@ -172,7 +172,7 @@ export class AuthController {
         throw new BadRequestException('Invalid user type');
     }
 
-    const payload = { id: user.id, email: user.email, type: userType };
+    const payload = { id: user.id, username: user.username, type: userType };
     const newToken = this.jwtService.sign(payload);
     console.log(payload);
     console.log(newToken);
