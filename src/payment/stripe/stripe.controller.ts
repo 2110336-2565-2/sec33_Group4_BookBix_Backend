@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Param, Post, SetMetadata, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, Post, Req, Res, SetMetadata, UseGuards } from '@nestjs/common';
 import { StripeService } from './stripe.service';
 import Stripe from 'stripe';
 import { RolesGuard } from 'src/auth/guards/roles.auth.guard';
 import { UserType } from 'src/auth/constants';
+
 
 @Controller('stripe')
 export class StripeController {
@@ -26,11 +27,13 @@ export class StripeController {
     return { accountId, accountLinkUrl };
   }
   @Post('create-checkout-session')
-  async createCheckoutSession(@Body() body: { priceId: string }): Promise<any> {
-    const session = await this.stripeService.createCheckoutSession(body.priceId);
+  async createCheckoutSession(@Body() body: { priceId: string, connectedAccountId: string, hour: number }): Promise<{url: string}> {
+    const { priceId, connectedAccountId, hour } = body;
+
+    const session = await this.stripeService.createCheckoutSession(priceId, connectedAccountId, hour);
 
     return { url: session.url };
-  }
+  } 
   @Post('create-product')
   async createProductAndPrice(
     @Body('name') name: string,
@@ -43,5 +46,5 @@ export class StripeController {
     return { product, price };
   }
 
-  
+
 }
