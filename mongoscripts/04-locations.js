@@ -39,6 +39,8 @@ db.locations.insertMany([
     ],
     price: 300,
     avg_rating: 4.5,
+    type: '',
+    function: ''
   },
   {
     _id: ObjectId('000000000004000000000002'),
@@ -68,6 +70,8 @@ db.locations.insertMany([
     available_days: ['Monday', 'Wednesday', 'Friday', 'Sunday'],
     price: 300,
     avg_rating: 4.75,
+    type: '',
+    function: ''
   },
   {
     _id: ObjectId('000000000004000000000003'),
@@ -97,6 +101,8 @@ db.locations.insertMany([
     available_days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
     price: 200,
     avg_rating: 4.25,
+    type: '',
+    function: ''
   },
   {
     _id: ObjectId('000000000004000000000004'),
@@ -125,5 +131,7 @@ db.locations.insertMany([
     available_days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
     price: 350,
     avg_rating: 4.75,
+    type: '',
+    function: ''
   },
 ]);

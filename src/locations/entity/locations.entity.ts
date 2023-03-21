@@ -85,6 +85,12 @@ export const LocationSchema = new Schema({
   avg_rating: {
     type: Number,
   },
+  type: {
+    type: String,
+  },
+  function: {
+    type: String,
+  }
 });
 
 export const LocationModel = model<Location>('Location', LocationSchema);
