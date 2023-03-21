@@ -56,10 +56,7 @@ export class StripeService {
   }
 
 
-  async capturePayment(paymentIntentId: string): Promise<Stripe.PaymentIntent> {
-    const paymentIntent = await this.stripe.paymentIntents.capture(paymentIntentId);
-    return paymentIntent;
-  }
+  
 
   // read more about product and price object
   // product: https://stripe.com/docs/api/products
