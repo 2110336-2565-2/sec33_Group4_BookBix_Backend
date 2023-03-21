@@ -3,6 +3,7 @@ import { StripeService } from './stripe.service';
 import Stripe from 'stripe';
 import { RolesGuard } from 'src/auth/guards/roles.auth.guard';
 import { UserType } from 'src/auth/constants';
+import { CouponDuration } from './coupon-duration.enum';
 
 
 @Controller('stripe')
@@ -44,6 +45,28 @@ export class StripeController {
     // unit amount is in cents so we multiply by 100
     const { product, price } = await this.stripeService.createProductAndPrice(name, description, unitAmount*100, accountId);
     return { product, price };
+  }
+
+  @Post('create-coupon')
+  async createCoupon(
+    @Body('percentOff') percentOff: number,
+    @Body('duration') duration: string,
+    @Body('durationInMonths') durationInMonths: number,
+    @Body('productIds') productIds?: string[],
+  ): Promise<{ statusCode: number; coupon: Stripe.Coupon }> {
+    const durationEnum = this.stripeService.convertToDurationEnum(duration);
+
+    const createdCoupon = await this.stripeService.createCoupon(
+      percentOff,
+      durationEnum,
+      durationInMonths,
+      productIds,
+    );
+
+    return {
+      statusCode: HttpStatus.CREATED,
+      coupon: createdCoupon,
+    };
   }
 
 

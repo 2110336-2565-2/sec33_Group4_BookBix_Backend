@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 import { ConfigService } from '@nestjs/config';
+import { CouponDuration } from './coupon-duration.enum';
 
 @Injectable()
 export class StripeService {
@@ -19,10 +20,10 @@ export class StripeService {
       type: 'standard',
     });
     console.log(account);
-    
+
     return account.id;
   }
-  
+
 
   async createAccountLink(accountId: string): Promise<string> {
     const accountLink = await this.stripe.accountLinks.create({
@@ -34,31 +35,35 @@ export class StripeService {
     return accountLink.url;
   }
 
-  
-  async createCheckoutSession(priceId: string, connectedAccountId:string, hour:number): Promise<Stripe.Checkout.Session> {
-    
+
+  async createCheckoutSession(priceId: string, connectedAccountId: string, hour: number): Promise<Stripe.Checkout.Session> {
+
     const price = await this.stripe.prices.retrieve(priceId);
     const applicationFeeAmount = Math.round(price.unit_amount * 0.1); // calculate 10% of the total price
 
     const session = await this.stripe.checkout.sessions.create({
       mode: 'payment',
-      line_items: [{price: priceId, quantity: hour}],
+      line_items: [{ price: priceId, quantity: hour }],
       payment_intent_data: {
         application_fee_amount: applicationFeeAmount,
-        transfer_data: {destination: connectedAccountId},
+        transfer_data: { destination: connectedAccountId },
       },
       success_url: 'http://localhost:3000/me/bookings',
       cancel_url: 'http://localhost:3000/me/bookings',
+      allow_promotion_codes: true,
     });
     return session;
-}
+  }
 
-  
+
   async capturePayment(paymentIntentId: string): Promise<Stripe.PaymentIntent> {
     const paymentIntent = await this.stripe.paymentIntents.capture(paymentIntentId);
     return paymentIntent;
   }
-  
+
+  // read more about product and price object
+  // product: https://stripe.com/docs/api/products
+  // price: https://stripe.com/docs/api/prices
   async createProductAndPrice(name: string, description: string, unitAmount: number, accountId: string): Promise<{ product: Stripe.Product, price: Stripe.Price }> {
     const product = await this.stripe.products.create({
       name,
@@ -81,7 +86,36 @@ export class StripeService {
     return { product, price };
   }
 
-  
+  // read more about coupon object https://stripe.com/docs/api/coupons/object#coupon_object-duration
+  async createCoupon(
+    percentOff: number,
+    duration: string,
+    durationInMonths: number,
+    productIds?: string[]
+  ): Promise<Stripe.Coupon> {
+    const durationEnum = this.convertToDurationEnum(duration);
+    const coupon = await this.stripe.coupons.create({
+      percent_off: percentOff,
+      duration: durationEnum,
+      duration_in_months: durationInMonths,
+      applies_to: {
+        products: productIds,
+      },
+    });
+
+    return coupon;
+  }
+
+
+  convertToDurationEnum(duration: string): CouponDuration {
+    const durationEnum = CouponDuration[duration.toUpperCase() as keyof typeof CouponDuration];
+
+    if (!durationEnum) {
+      throw new BadRequestException(`Invalid duration: ${duration}`);
+    }
+
+    return durationEnum;
+  }
 
 
 }
