@@ -8,6 +8,7 @@ export interface Provider extends Document {
   date_created: Date;
   organization_name: string;
   locations: Array<any>;
+  stripe_account_id?: string;
 }
 
 export const ProviderSchema = new Schema({
@@ -36,6 +37,9 @@ export const ProviderSchema = new Schema({
   },
   locations: {
     type: [Object],
+  },
+  stripe_account_id: {
+    type: String,
   },
 });
 
