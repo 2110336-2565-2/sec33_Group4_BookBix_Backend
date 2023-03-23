@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 import { ConfigService } from '@nestjs/config';
+import { Request } from 'express';
 
 @Injectable()
 export class StripeService {
@@ -120,5 +121,13 @@ export class StripeService {
     return prices;
   }
 
+  async constructEvent(req:Request): Promise<Stripe.Event> {
+    const webhook = this.stripe.webhooks.constructEvent(
+      req.body,
+      req.headers['stripe-signature'],
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+    return webhook;
+  }
 
 }

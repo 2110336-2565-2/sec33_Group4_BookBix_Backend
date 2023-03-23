@@ -1,8 +1,10 @@
-import { Body, Controller, Get, Param, Post, SetMetadata, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Req, Res, SetMetadata, UseGuards } from '@nestjs/common';
 import { StripeService } from './stripe.service';
 import Stripe from 'stripe';
 import { RolesGuard } from 'src/auth/guards/roles.auth.guard';
 import { UserType } from 'src/auth/constants';
+import stripe from 'stripe';
+
 
 @Controller('stripe')
 export class StripeController {
@@ -50,5 +52,45 @@ export class StripeController {
       paymentIntentId,
     );
     return paymentIntent;
+  }
+
+  @Post('webhook')
+  @HttpCode(HttpStatus.OK)
+  async handleWebhook(@Body() payload: any): Promise<any> {
+    let event;
+
+    // Verify the event if you have an endpoint secret defined
+    if (process.env.STRIPE_ENDPOINT_SECRET) {
+      try {
+        event = this.stripeService.constructEvent(payload);
+      } catch (err) {
+        console.log('⚠️ Webhook signature verification failed.', err.message);
+        return;
+      }
+    } else {
+      event = payload;
+    }
+
+    // Handle the event
+    switch (event.type) {
+      case 'payment_intent.succeeded':
+        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        console.log(`PaymentIntent for ${paymentIntent.amount} was successful!`);
+        // Then define and call a method to handle the successful payment intent.
+        // handlePaymentIntentSucceeded(paymentIntent);
+        break;
+      case 'payment_method.attached':
+        const paymentMethod = event.data.object as Stripe.PaymentMethod;
+        // Then define and call a method to handle the successful attachment of a PaymentMethod.
+        // handlePaymentMethodAttached(paymentMethod);
+        break;
+      default:
+        // Unexpected event type
+        console.log(`Unhandled event type ${event.type}.`);
+        break;
+    }
+
+    // Return a 200 response to acknowledge receipt of the event
+    return;
   }
 }
