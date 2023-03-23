@@ -1,17 +1,25 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, Req, Res, SetMetadata, UseGuards } from '@nestjs/common';
+import { Headers, Body, Controller, Get, HttpStatus, Param, Post, Req, Res, SetMetadata, UseGuards, ForbiddenException } from '@nestjs/common';
 import { StripeService } from './stripe.service';
 import Stripe from 'stripe';
 import { RolesGuard } from 'src/auth/guards/roles.auth.guard';
 import { UserType } from 'src/auth/constants';
 import { CouponDuration } from './coupon-duration.enum';
-
+import { JwtAuthService } from 'src/auth/jwt.service';
+import * as cookieParser from 'cookie-parser';
+import { Request } from 'express';
+import { JwtService } from '@nestjs/jwt';
+import { ProvidersService } from 'src/providers/providers.service';
 
 @Controller('stripe')
 export class StripeController {
-  constructor(private stripeService: StripeService) {}
+  constructor(private stripeService: StripeService,
+    private readonly providersService: ProvidersService,
+    private readonly jwtAuthService: JwtAuthService,
+    private readonly jwtService: JwtService,
+  ) { }
 
-  @Post('create-account')
-  async createAccount(
+  @Post('create-provider-account')
+  async createProviderAccount(
     @Body()
     body: {
       email: string;
@@ -19,31 +27,50 @@ export class StripeController {
       businessType: string;
       companyName: string;
     },
+    @Req() req: Request
   ): Promise<{ accountId: string; accountLinkUrl: string }> {
+    const jwtCookie = req.cookies['access_token'];
+    const payload = await this.jwtService.verify(jwtCookie);
+    const { id, username, type } = payload;
+    
+    
+    if (type !== UserType.PROVIDER) {
+      throw new ForbiddenException('Only providers can create a stripe account');
+    }
+    
+
     const accountId = await this.stripeService.createAccount();
     const accountLinkUrl = await this.stripeService.createAccountLink(
       accountId,
-    );
+    )
+    
+    await this.providersService.updateStripeAccountId(id, accountId);
 
     return { accountId, accountLinkUrl };
   }
+
+
   @Post('create-checkout-session')
-  async createCheckoutSession(@Body() body: { priceId: string, connectedAccountId: string, hour: number }): Promise<{url: string}> {
+  async createCheckoutSession(@Body() body: { priceId: string, connectedAccountId: string, hour: number }): Promise<{ url: string }> {
     const { priceId, connectedAccountId, hour } = body;
 
     const session = await this.stripeService.createCheckoutSession(priceId, connectedAccountId, hour);
 
     return { url: session.url };
-  } 
+  }
   @Post('create-product')
   async createProductAndPrice(
     @Body('name') name: string,
     @Body('description') description: string,
     @Body('unitAmount') unitAmount: number,
-    @Body('accountId') accountId: string,
+    @Req() req: Request,
   ) {
     // unit amount is in cents so we multiply by 100
-    const { product, price } = await this.stripeService.createProductAndPrice(name, description, unitAmount*100, accountId);
+    const jwtCookie = req.cookies['access_token'];
+    const payload = await this.jwtService.verify(jwtCookie);
+    const { id, username, type } = payload;
+    const accountId = await this.providersService.getStripeAccountId(id);
+    const { product, price } = await this.stripeService.createProductAndPrice(name, description, unitAmount * 100, accountId);
     return { product, price };
   }
 

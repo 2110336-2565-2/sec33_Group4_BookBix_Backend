@@ -2,12 +2,14 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 import { ConfigService } from '@nestjs/config';
 import { CouponDuration } from './coupon-duration.enum';
-
+import { ProvidersService } from 'src/providers/providers.service';
 @Injectable()
 export class StripeService {
   private stripe: Stripe;
 
-  constructor(private configService: ConfigService) {
+  constructor(private configService: ConfigService,
+    private readonly providersService: ProvidersService,
+    ) {
     const stripeSecretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
     this.stripe = new Stripe(stripeSecretKey, {
       apiVersion: '2022-11-15',
@@ -19,11 +21,14 @@ export class StripeService {
     const account = await this.stripe.accounts.create({
       type: 'standard',
     });
-    console.log(account);
 
     return account.id;
   }
 
+  async saveAccount(providerId: string, accountId: string){
+    //save accountId into mongodb
+    // this.customersService.addStripeAccountIdToCustomer(customerId ,accountId);
+  }
 
   async createAccountLink(accountId: string): Promise<string> {
     const accountLink = await this.stripe.accountLinks.create({
