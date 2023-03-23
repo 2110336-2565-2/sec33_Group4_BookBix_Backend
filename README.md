@@ -49,13 +49,17 @@ Here are the steps to use the **`listen`** command with a local webhook:
 3. Run the following command to start listening for webhook events:
     
     ```
-    bashCopy code
     stripe listen --forward-to http://localhost:3001/stripe/webhook
-    
     ```
     
     This command starts the webhook listener and forwards any events received from Stripe to the specified local endpoint.
+4. When you run the **`listen`** command for the first time, Stripe generates a webhook signing secret for you. Copy this secret and set it as the value of the **`STRIPE_WEBHOOK_SECRET`** environment variable in your **`.env`** file. If you don't have an **`.env`** file, create one in the root directory of your project.
     
+    ```
+    STRIPE_WEBHOOK_SECRET=whsec_...
+    ```
+    
+    You can also find the webhook signing secret in your Stripe dashboard under **Developers** > **Webhooks** > **Signing secret**. Make sure to keep this secret secure and not share it with anyone.    
 ### Tech Stack 
 - Nest.js 
 - MongoDB 
