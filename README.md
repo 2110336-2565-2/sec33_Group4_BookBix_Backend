@@ -36,7 +36,26 @@ Before starting local development, it is required to have Node.js installed in y
   
 7. if you want to use git you need to use this command first `git config --global --add safe.directory /workspaces/sec33_Group4_BookBix_Backend` (and the vscode will suggest you to Manage Unsafe Repositories to use git in vscode)
  
- 
+# 
+
+### **Using Stripe `listen` with a Local Webhook**
+
+Stripe provides a command-line interface (CLI) tool called **`listen`** that lets you receive webhook events from Stripe and test your webhook handler locally. You can use the **`listen`** command with the **`--forward-to`** option to forward webhook events to a local endpoint, such as **`http://localhost:3001/stripe/webhook`**.
+
+Here are the steps to use the **`listen`** command with a local webhook:
+
+1. Install the Stripe CLI by following the instructions **[here](https://stripe.com/docs/stripe-cli#install)**.
+2. Start your server on port **`3001`** and make sure it's accessible at **`http://localhost:3001/stripe/webhook`**. This endpoint will receive the webhook events from Stripe.
+3. Run the following command to start listening for webhook events:
+    
+    ```
+    bashCopy code
+    stripe listen --forward-to http://localhost:3001/stripe/webhook
+    
+    ```
+    
+    This command starts the webhook listener and forwards any events received from Stripe to the specified local endpoint.
+    
 ### Tech Stack 
 - Nest.js 
 - MongoDB 
