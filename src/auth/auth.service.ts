@@ -14,7 +14,7 @@ import { ProvidersService } from '../providers/providers.service';
 import { CreateCustomerDto } from '../customers/dto/create-customer.dto';
 import { CreateAdminDto } from '../admins/dto/create-admin.dto';
 import { CreateProviderDto } from 'src/providers/dto/create-provider.dto';
-import { EmailService } from './email/email.service';
+import { EmailService } from '../email/email.service';
 @Injectable()
 export class AuthService {
   constructor(

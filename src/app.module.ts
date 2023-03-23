@@ -6,7 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { CustomersModule } from './customers/customers.module';
 import { ConfigModule } from '@nestjs/config';
-import { EmailModule } from "./auth/email/email.module";
+import { EmailModule } from "./email/email.module";
 import { ProvidersModule } from './providers/providers.module';
 import { AdminsModule } from './admins/admins.module';
 import { StripeModule } from './payment/stripe/stripe.module';

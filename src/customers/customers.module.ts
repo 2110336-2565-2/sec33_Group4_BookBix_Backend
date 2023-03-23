@@ -4,7 +4,7 @@ import { CustomersController } from './customers.controller';
 import { CustomersService } from './customers.service';
 import { CustomerSchema } from './entities/customers.entity';
 import { JwtService } from '@nestjs/jwt';
-import { EmailService } from '../auth/email/email.service';
+import { EmailService } from '../email/email.service';
 import { JwtAuthService } from 'src/auth/jwt.service';
 @Module({
   imports: [
