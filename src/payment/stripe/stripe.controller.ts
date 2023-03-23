@@ -4,11 +4,14 @@ import Stripe from 'stripe';
 import { RolesGuard } from 'src/auth/guards/roles.auth.guard';
 import { UserType } from 'src/auth/constants';
 import stripe from 'stripe';
+import { EmailService } from 'src/email/email.service';
 
 
 @Controller('stripe')
 export class StripeController {
-  constructor(private stripeService: StripeService) {}
+  constructor(private stripeService: StripeService,
+    private readonly emailService: EmailService,
+  ) { }
 
   @Post('create-account')
   async createAccount(
@@ -73,16 +76,13 @@ export class StripeController {
 
     // Handle the event
     switch (event.type) {
-      case 'payment_intent.succeeded':
-        const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        console.log(`PaymentIntent for ${paymentIntent.amount} was successful!`);
-        // Then define and call a method to handle the successful payment intent.
-        // handlePaymentIntentSucceeded(paymentIntent);
-        break;
-      case 'payment_method.attached':
-        const paymentMethod = event.data.object as Stripe.PaymentMethod;
-        // Then define and call a method to handle the successful attachment of a PaymentMethod.
-        // handlePaymentMethodAttached(paymentMethod);
+      case 'checkout.session.completed':
+        const checkout = event.data.object as Stripe.Checkout.Session;
+        // console.log(checkout);
+        const email = event.data.object.customer_details.email;
+        const emailSubject = 'Order Notification';
+        const emailBody = 'Your order has been placed successfully!';
+        await this.emailService.sendEmail(email, emailSubject, emailBody);
         break;
       default:
         // Unexpected event type
