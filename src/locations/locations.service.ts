@@ -85,4 +85,12 @@ export class LocationsService {
       return location;
     }
   }
+  async updateStripeLocationProductIdAndPriceId(locationId: string, productId: string, priceId: string) {
+    const filter = { _id: locationId };
+    const update = { $set: { stripe_prod_id: productId, stripe_price_id: priceId } };
+    const options = { new: true };
+    const location = await this.locationModel.findOneAndUpdate(filter, update, options);
+    return location;
+
+  }
 }
