@@ -3,19 +3,19 @@ import { StripeService } from './stripe.service';
 import Stripe from 'stripe';
 import { RolesGuard } from 'src/auth/guards/roles.auth.guard';
 import { UserType } from 'src/auth/constants';
-import { CouponDuration } from './coupon-duration.enum';
 import { JwtAuthService } from 'src/auth/jwt.service';
 import * as cookieParser from 'cookie-parser';
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { ProvidersService } from 'src/providers/providers.service';
-
+import { LocationsService } from 'src/locations/locations.service';
 @Controller('stripe')
 export class StripeController {
   constructor(private stripeService: StripeService,
     private readonly providersService: ProvidersService,
     private readonly jwtAuthService: JwtAuthService,
     private readonly jwtService: JwtService,
+    private readonly locationsService: LocationsService,
   ) { }
 
   @Post('create-provider-account')
@@ -37,9 +37,9 @@ export class StripeController {
     if (type !== UserType.PROVIDER) {
       throw new ForbiddenException('Only providers can create a stripe account');
     }
-    
+    const bType = body.businessType as Stripe.AccountCreateParams.BusinessType;
 
-    const accountId = await this.stripeService.createAccount();
+    const accountId = await this.stripeService.createAccount(body.email, body.country, bType, body.companyName);
     const accountLinkUrl = await this.stripeService.createAccountLink(
       accountId,
     )
@@ -60,6 +60,7 @@ export class StripeController {
   }
   @Post('create-product')
   async createProductAndPrice(
+    @Body('locationId') locationId: string,
     @Body('name') name: string,
     @Body('description') description: string,
     @Body('unitAmount') unitAmount: number,
@@ -71,21 +72,21 @@ export class StripeController {
     const { id, username, type } = payload;
     const accountId = await this.providersService.getStripeAccountId(id);
     const { product, price } = await this.stripeService.createProductAndPrice(name, description, unitAmount * 100, accountId);
+    await this.locationsService.updateStripeLocationProductIdAndPriceId(locationId, product.id, price.id);
     return { product, price };
   }
 
   @Post('create-coupon')
   async createCoupon(
     @Body('percentOff') percentOff: number,
-    @Body('duration') duration: string,
+    @Body('duration') duration: Stripe.CouponCreateParams.Duration,
     @Body('durationInMonths') durationInMonths: number,
     @Body('productIds') productIds?: string[],
   ): Promise<{ statusCode: number; coupon: Stripe.Coupon }> {
-    const durationEnum = this.stripeService.convertToDurationEnum(duration);
 
     const createdCoupon = await this.stripeService.createCoupon(
       percentOff,
-      durationEnum,
+      duration,
       durationInMonths,
       productIds,
     );

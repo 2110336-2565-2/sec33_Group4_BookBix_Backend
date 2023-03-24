@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 import { ConfigService } from '@nestjs/config';
-import { CouponDuration } from './coupon-duration.enum';
 import { ProvidersService } from 'src/providers/providers.service';
 @Injectable()
 export class StripeService {
@@ -9,26 +8,26 @@ export class StripeService {
 
   constructor(private configService: ConfigService,
     private readonly providersService: ProvidersService,
-    ) {
+  ) {
     const stripeSecretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
     this.stripe = new Stripe(stripeSecretKey, {
       apiVersion: '2022-11-15',
     });
   }
 
-  async createAccount(
+  async createAccount(email: string, country: string, businessType: Stripe.AccountCreateParams.BusinessType, companyName: string
   ): Promise<string> {
     const account = await this.stripe.accounts.create({
       type: 'standard',
+      country: country,
+      email: email,
+      business_type: businessType,
+      company: { name: companyName },
     });
 
     return account.id;
   }
 
-  async saveAccount(providerId: string, accountId: string){
-    //save accountId into mongodb
-    // this.customersService.addStripeAccountIdToCustomer(customerId ,accountId);
-  }
 
   async createAccountLink(accountId: string): Promise<string> {
     const accountLink = await this.stripe.accountLinks.create({
@@ -61,7 +60,7 @@ export class StripeService {
   }
 
 
-  
+
 
   // read more about product and price object
   // product: https://stripe.com/docs/api/products
@@ -91,14 +90,14 @@ export class StripeService {
   // read more about coupon object https://stripe.com/docs/api/coupons/object#coupon_object-duration
   async createCoupon(
     percentOff: number,
-    duration: string,
+    duration: Stripe.CouponCreateParams.Duration,
     durationInMonths: number,
     productIds?: string[]
   ): Promise<Stripe.Coupon> {
-    const durationEnum = this.convertToDurationEnum(duration);
+    // const durationEnum = this.convertToDurationEnum(duration);
     const coupon = await this.stripe.coupons.create({
       percent_off: percentOff,
-      duration: durationEnum,
+      duration: duration,
       duration_in_months: durationInMonths,
       applies_to: {
         products: productIds,
@@ -108,16 +107,6 @@ export class StripeService {
     return coupon;
   }
 
-
-  convertToDurationEnum(duration: string): CouponDuration {
-    const durationEnum = CouponDuration[duration.toUpperCase() as keyof typeof CouponDuration];
-
-    if (!durationEnum) {
-      throw new BadRequestException(`Invalid duration: ${duration}`);
-    }
-
-    return durationEnum;
-  }
 
 
 }
