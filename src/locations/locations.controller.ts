@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Delete,
 } from '@nestjs/common';
 import { Time } from './entity/locations.entity';
 import { LocationsService } from './locations.service';
@@ -61,5 +62,11 @@ export class ReviewsController {
       status: HttpStatus.OK,
       msg: 'Location updated',
     };
+  }
+
+  @Delete(':locationId')
+  async deleteLocation(@Param('locationId') locationId: string) {
+    const location = await this.locationsService.deleteLocation(locationId);
+    return location;
   }
 }

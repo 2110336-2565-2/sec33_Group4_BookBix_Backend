@@ -49,4 +49,20 @@ export class LocationsService {
     location.available_days = available_days;
     return location.save();
   }
+
+  async deleteLocation(locationId: string) {
+    try {
+      const location = await this.locationModel.findById(locationId);
+      location.remove();
+      return {
+        status: HttpStatus.OK,
+        msg: 'Location deleted',
+      };
+    } catch (err) {
+      return {
+        status: HttpStatus.NOT_FOUND,
+        msg: 'Location not found',
+      };
+    }
+  }
 }
