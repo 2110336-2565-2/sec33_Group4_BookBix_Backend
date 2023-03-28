@@ -32,6 +32,33 @@ export class LocationsService {
     return location.save();
   }
 
+  async createLocation(
+    name: string,
+    address: string,
+    description: string,
+    url: string,
+    images: string[],
+    reviews: string[],
+    time: Time,
+    available_days: string[],
+    price: number,
+    avg_rating: number,
+  ) {
+    const location = new this.locationModel({
+      name,
+      address,
+      description,
+      url,
+      images,
+      reviews,
+      time,
+      available_days,
+      price,
+      avg_rating,
+    });
+    return location.save();
+  }
+
   async updateLocation(
     locationId: string,
     time: Time,

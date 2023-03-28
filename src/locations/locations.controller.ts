@@ -41,6 +41,47 @@ export class ReviewsController {
     };
   }
 
+  @Post()
+  async createLocation(
+    @Body('name') name: string,
+    @Body('address') address: string,
+    @Body('description') description: string,
+    @Body('url') url: string,
+    @Body('images') images: string[],
+    @Body('time') time: Time,
+    @Body('available_days') available_days: string[],
+    @Body('price') price: number,
+  ) {
+    if (
+      !name ||
+      !address ||
+      !description ||
+      !url ||
+      !images ||
+      !time ||
+      !available_days ||
+      !price
+    ) {
+      throw new HttpException('Invalid request body', HttpStatus.BAD_REQUEST);
+    }
+    const location = await this.locationsService.createLocation(
+      name,
+      address,
+      description,
+      url,
+      images,
+      [],
+      time,
+      available_days,
+      price,
+      0,
+    );
+    return {
+      status: HttpStatus.CREATED,
+      msg: 'Location created',
+    };
+  }
+
   @Put(':locationId')
   async updateLocation(
     @Param('locationId') locationId: string,
