@@ -89,15 +89,16 @@ export class StripeService {
 
   // read more about coupon object https://stripe.com/docs/api/coupons/object#coupon_object-duration
   async createCoupon(
-    percentOff: number,
+    percentOff?: number,
     duration: Stripe.CouponCreateParams.Duration,
     durationInMonths: number,
-    productIds?: string[]
+    productIds?: string[],
+    amountOff?: number,
   ): Promise<Stripe.Coupon> {
     // const durationEnum = this.convertToDurationEnum(duration);
     const coupon = await this.stripe.coupons.create({
       percent_off: percentOff,
-      duration: duration,
+      duration: 'once',
       duration_in_months: durationInMonths,
       applies_to: {
         products: productIds,
