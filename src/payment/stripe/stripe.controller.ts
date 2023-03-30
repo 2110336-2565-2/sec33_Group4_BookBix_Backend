@@ -83,17 +83,19 @@ export class StripeController {
 
   @Post('create-coupon')
   async createCoupon(
-    @Body('percentOff') percentOff: number,
-    @Body('duration') duration: Stripe.CouponCreateParams.Duration,
-    @Body('durationInMonths') durationInMonths: number,
-    @Body('productIds') productIds?: string[],
+    @Body('name') name: string,
+    @Body('amountOff') amountOff?: number,
+    @Body('percentOff') percentOff?: number,
+    @Body('maxRedemptions') maxRedemptions?: number,
+    @Body('locationName') locationName?: string,
   ): Promise<{ statusCode: number; coupon: Stripe.Coupon }> {
 
     const createdCoupon = await this.stripeService.createCoupon(
+      name,
+      amountOff,
       percentOff,
-      duration,
-      durationInMonths,
-      productIds,
+      maxRedemptions,
+      locationName,
     );
 
     return {
@@ -101,6 +103,7 @@ export class StripeController {
       coupon: createdCoupon,
     };
   }
+
 
   @Post('webhook')
   @HttpCode(HttpStatus.OK)
