@@ -51,4 +51,8 @@ export class ProvidersService {
     const provider = await this.providerModel.findById(providerId);
     return provider.stripe_account_id;
   }
+  async getProviderEmailByStripeAccountId(stripeAccountId: string): Promise<string> {
+    const provider = await this.providerModel.findOne({ stripe_account_id: stripeAccountId });
+    return provider.email;
+  }
 }

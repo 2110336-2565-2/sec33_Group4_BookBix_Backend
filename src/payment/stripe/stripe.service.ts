@@ -42,22 +42,25 @@ export class StripeService {
   }
 
 
-  async createCheckoutSession(priceId: string, connectedAccountId: string, hour: number): Promise<Stripe.Checkout.Session> {
+  async createCheckoutSession(priceId: string, connectedAccountId: string, hour: number, takeReceipt:boolean): Promise<Stripe.Checkout.Session> {
 
     const price = await this.stripe.prices.retrieve(priceId);
-    const applicationFeeAmount = Math.round(price.unit_amount * 0.1); // calculate 10% of the total price
-
-    const session = await this.stripe.checkout.sessions.create({
+    const applicationFeeAmount = hour*Math.round(price.unit_amount * 0.1); // calculate 10% of the total price
+    const email = await this.providersService.getProviderEmailByStripeAccountId(connectedAccountId);
+    const sessionParams = {
       mode: 'payment',
       line_items: [{ price: priceId, quantity: hour }],
       payment_intent_data: {
         application_fee_amount: applicationFeeAmount,
         transfer_data: { destination: connectedAccountId },
+        receipt_email: takeReceipt? email:"se.db.group4@gmail.com",
       },
       success_url: 'http://localhost:3000/me/bookings',
       cancel_url: 'http://localhost:3000/me/bookings',
       allow_promotion_codes: true,
-    });
+    } as Stripe.Checkout.SessionCreateParams;
+
+    const session = await this.stripe.checkout.sessions.create(sessionParams);
     return session;
   }
 
@@ -67,7 +70,8 @@ export class StripeService {
   // read more about product and price object
   // product: https://stripe.com/docs/api/products
   // price: https://stripe.com/docs/api/prices
-  async createProductAndPrice(name: string, description: string, unitAmount: number, accountId: string): Promise<{ product: Stripe.Product, price: Stripe.Price }> {
+  async createProductAndPrice(name: string, description: string, unitAmount: number): Promise<{ product: Stripe.Product, price: Stripe.Price }> {
+    const accountId = process.env.STRIPE_ACCOUNT_ID;
     const product = await this.stripe.products.create({
       name,
       description,
@@ -80,7 +84,7 @@ export class StripeService {
 
     const price = await this.stripe.prices.create({
       product: product.id,
-      unit_amount: unitAmount,
+      unit_amount: unitAmount * 100, // convert to cent
       currency: 'thb',
     }, {
       stripeAccount: accountId,
@@ -92,8 +96,8 @@ export class StripeService {
   // read more about coupon object https://stripe.com/docs/api/coupons/object#coupon_object-duration
   async createCoupon(
     percentOff?: number,
-    duration: Stripe.CouponCreateParams.Duration,
-    durationInMonths: number,
+    duration?: Stripe.CouponCreateParams.Duration,
+    durationInMonths?: number,
     productIds?: string[],
     amountOff?: number,
   ): Promise<Stripe.Coupon> {

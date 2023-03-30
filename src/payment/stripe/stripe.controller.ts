@@ -1,4 +1,4 @@
-import { Headers, Body, Controller, Get, HttpStatus, Param, Post, Req, Res, SetMetadata, UseGuards, ForbiddenException } from '@nestjs/common';
+import { Headers, Body, Controller, Get, HttpStatus, Param, Post, Req, Res, SetMetadata, UseGuards, ForbiddenException, HttpCode } from '@nestjs/common';
 import { StripeService } from './stripe.service';
 import Stripe from 'stripe';
 import { RolesGuard } from 'src/auth/guards/roles.auth.guard';
@@ -22,7 +22,7 @@ export class StripeController {
     private readonly locationsService: LocationsService,
     private readonly emailService: EmailService,
   ) { }
-    
+
 
   @Post('create-provider-account')
   async createProviderAccount(
@@ -38,8 +38,8 @@ export class StripeController {
     const jwtCookie = req.cookies['access_token'];
     const payload = await this.jwtService.verify(jwtCookie);
     const { id, username, type } = payload;
-    
-    
+
+
     if (type !== UserType.PROVIDER) {
       throw new ForbiddenException('Only providers can create a stripe account');
     }
@@ -49,7 +49,7 @@ export class StripeController {
     const accountLinkUrl = await this.stripeService.createAccountLink(
       accountId,
     )
-    
+
     await this.providersService.updateStripeAccountId(id, accountId);
 
     return { accountId, accountLinkUrl };
@@ -57,10 +57,15 @@ export class StripeController {
 
 
   @Post('create-checkout-session')
-  async createCheckoutSession(@Body() body: { priceId: string, connectedAccountId: string, hour: number }): Promise<{ url: string }> {
-    const { priceId, connectedAccountId, hour } = body;
+  async createCheckoutSession(
+    @Body('provider_id') provider_id: string,
+    @Body('location_id') location_id: string,
+    @Body('quantity') quantity: number,
+    @Body('takeReceipt') takeReceipt: boolean): Promise<{ url: string }> {
 
-    const session = await this.stripeService.createCheckoutSession(priceId, connectedAccountId, hour);
+    const provider = await this.providersService.getProviderById(provider_id);
+    const location = await this.locationsService.getLocationById(location_id);
+    const session = await this.stripeService.createCheckoutSession(location.stripe_price_id, provider.stripe_account_id, quantity, takeReceipt);
 
     return { url: session.url };
   }
@@ -69,15 +74,9 @@ export class StripeController {
     @Body('locationId') locationId: string,
     @Body('name') name: string,
     @Body('description') description: string,
-    @Body('unitAmount') unitAmount: number,
-    @Req() req: Request,
+    @Body('price') unitAmount: number,
   ) {
-    // unit amount is in cents so we multiply by 100
-    const jwtCookie = req.cookies['access_token'];
-    const payload = await this.jwtService.verify(jwtCookie);
-    const { id, username, type } = payload;
-    const accountId = await this.providersService.getStripeAccountId(id);
-    const { product, price } = await this.stripeService.createProductAndPrice(name, description, unitAmount * 100, accountId);
+    const { product, price } = await this.stripeService.createProductAndPrice(name, description, unitAmount);
     await this.locationsService.updateStripeLocationProductIdAndPriceId(locationId, product.id, price.id);
     return { product, price };
   }

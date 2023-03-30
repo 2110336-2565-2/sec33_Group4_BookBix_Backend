@@ -93,4 +93,8 @@ export class LocationsService {
     return location;
 
   }
+  async getLocationById(locationId: string){
+    const location = await this.locationModel.findById(locationId);
+    return location;
+  }
 }
