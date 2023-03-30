@@ -101,4 +101,8 @@ export class LocationsService {
     const location = await this.locationModel.findOne({name: locationName});
     return location.stripe_prod_id;
   }
+  async getImagesByLocationName(locationName: string){
+    const location = await this.locationModel.findOne({name: locationName});
+    return location.images;
+  }
 }

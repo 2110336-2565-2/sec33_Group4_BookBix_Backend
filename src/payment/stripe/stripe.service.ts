@@ -74,9 +74,11 @@ export class StripeService {
   // price: https://stripe.com/docs/api/prices
   async createProductAndPrice(name: string, description: string, unitAmount: number): Promise<{ product: Stripe.Product, price: Stripe.Price }> {
     const accountId = process.env.STRIPE_ACCOUNT_ID;
+    const images = await this.locationsService.getImagesByLocationName(name);
     const product = await this.stripe.products.create({
-      name,
-      description,
+      name: name,
+      description: description,
+      images: images,
       metadata: {
         key: 'value',
       },
