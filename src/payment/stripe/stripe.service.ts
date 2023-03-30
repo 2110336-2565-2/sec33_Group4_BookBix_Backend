@@ -44,11 +44,12 @@ export class StripeService {
   }
 
 
-  async createCheckoutSession(priceId: string, connectedAccountId: string, hour: number, takeReceipt:boolean): Promise<Stripe.Checkout.Session> {
+  async createCheckoutSession(priceId: string, connectedAccountId: string, hour: number, takeReceipt: boolean): Promise<Stripe.Checkout.Session> {
 
     const price = await this.stripe.prices.retrieve(priceId);
-    const applicationFeeAmount = hour*Math.round(price.unit_amount * 0.1); // calculate 10% of the total price
+    const applicationFeeAmount = hour * Math.round(price.unit_amount * 0.1); // calculate 10% of the total price
     const email = await this.providersService.getProviderEmailByStripeAccountId(connectedAccountId);
+
     const sessionParams = {
       mode: 'payment',
       line_items: [{ price: priceId, quantity: hour }],
@@ -72,9 +73,10 @@ export class StripeService {
   // read more about product and price object
   // product: https://stripe.com/docs/api/products
   // price: https://stripe.com/docs/api/prices
-  async createProductAndPrice(name: string, description: string, unitAmount: number): Promise<{ product: Stripe.Product, price: Stripe.Price }> {
+  async createProductAndPrice(name: string, description: string, unitAmount: number, locationId: string): Promise<{ product: Stripe.Product, price: Stripe.Price }> {
     const accountId = process.env.STRIPE_ACCOUNT_ID;
-    const images = await this.locationsService.getImagesByLocationName(name);
+    const images = await this.locationsService.getImagesByLocationId(locationId);
+
     const product = await this.stripe.products.create({
       name: name,
       description: description,
@@ -105,13 +107,7 @@ export class StripeService {
     maxRedemptions?: number,
     locationName?: string,
   ): Promise<Stripe.Coupon> {
-    let couponParams: Stripe.CouponCreateParams = {
-      name,
-      percent_off: percentOff,
-      amount_off: amountOff,
-      max_redemptions: maxRedemptions,
-    };
-    
+
     const productId = await this.locationsService.getProductIdByLocationName(locationName);
     const coupon = await this.stripe.coupons.create({
       name: name,
@@ -128,7 +124,7 @@ export class StripeService {
   }
 
 
-  async constructEvent(req:Request): Promise<Stripe.Event> {
+  async constructEvent(req: Request): Promise<Stripe.Event> {
     const webhook = this.stripe.webhooks.constructEvent(
       req.body,
       req.headers['stripe-signature'],

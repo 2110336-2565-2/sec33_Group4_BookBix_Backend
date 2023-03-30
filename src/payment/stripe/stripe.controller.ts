@@ -76,7 +76,7 @@ export class StripeController {
     @Body('description') description: string,
     @Body('price') unitAmount: number,
   ) {
-    const { product, price } = await this.stripeService.createProductAndPrice(name, description, unitAmount);
+    const { product, price } = await this.stripeService.createProductAndPrice(name, description, unitAmount, locationId);
     await this.locationsService.updateStripeLocationProductIdAndPriceId(locationId, product.id, price.id);
     return { product, price };
   }
