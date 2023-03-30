@@ -9,6 +9,10 @@ import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { ProvidersService } from 'src/providers/providers.service';
 import { LocationsService } from 'src/locations/locations.service';
+import stripe from 'stripe';
+import { EmailService } from 'src/email/email.service';
+
+
 @Controller('stripe')
 export class StripeController {
   constructor(private stripeService: StripeService,
@@ -16,7 +20,9 @@ export class StripeController {
     private readonly jwtAuthService: JwtAuthService,
     private readonly jwtService: JwtService,
     private readonly locationsService: LocationsService,
+    private readonly emailService: EmailService,
   ) { }
+    
 
   @Post('create-provider-account')
   async createProviderAccount(
@@ -97,5 +103,40 @@ export class StripeController {
     };
   }
 
+  @Post('webhook')
+  @HttpCode(HttpStatus.OK)
+  async handleWebhook(@Body() payload: any): Promise<any> {
+    let event;
 
+    // Verify the event if you have an endpoint secret defined
+    if (process.env.STRIPE_ENDPOINT_SECRET) {
+      try {
+        event = this.stripeService.constructEvent(payload);
+      } catch (err) {
+        console.log('⚠️ Webhook signature verification failed.', err.message);
+        return;
+      }
+    } else {
+      event = payload;
+    }
+
+    // Handle the event
+    switch (event.type) {
+      case 'checkout.session.completed':
+        const checkout = event.data.object as Stripe.Checkout.Session;
+        // console.log(checkout);
+        const email = event.data.object.customer_details.email;
+        const emailSubject = 'Order Notification';
+        const emailBody = 'Your order has been placed successfully!';
+        await this.emailService.sendEmail(email, emailSubject, emailBody);
+        break;
+      default:
+        // Unexpected event type
+        console.log(`Unhandled event type ${event.type}.`);
+        break;
+    }
+
+    // Return a 200 response to acknowledge receipt of the event
+    return;
+  }
 }
