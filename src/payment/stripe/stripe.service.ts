@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { ConfigService } from '@nestjs/config';
 import { ProvidersService } from 'src/providers/providers.service';
 import { Request } from 'express';
+import { LocationsService } from 'src/locations/locations.service';
 
 @Injectable()
 export class StripeService {
@@ -10,6 +11,7 @@ export class StripeService {
 
   constructor(private configService: ConfigService,
     private readonly providersService: ProvidersService,
+    private readonly locationsService: LocationsService,
   ) {
     const stripeSecretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
     this.stripe = new Stripe(stripeSecretKey, {
@@ -95,24 +97,34 @@ export class StripeService {
 
   // read more about coupon object https://stripe.com/docs/api/coupons/object#coupon_object-duration
   async createCoupon(
-    percentOff?: number,
-    duration?: Stripe.CouponCreateParams.Duration,
-    durationInMonths?: number,
-    productIds?: string[],
+    name: string,
     amountOff?: number,
+    percentOff?: number,
+    maxRedemptions?: number,
+    locationName?: string,
   ): Promise<Stripe.Coupon> {
-    // const durationEnum = this.convertToDurationEnum(duration);
+    let couponParams: Stripe.CouponCreateParams = {
+      name,
+      percent_off: percentOff,
+      amount_off: amountOff,
+      max_redemptions: maxRedemptions,
+    };
+    
+    const productId = await this.locationsService.getProductIdByLocationName(locationName);
     const coupon = await this.stripe.coupons.create({
+      name: name,
+      amount_off: amountOff,
       percent_off: percentOff,
       duration: 'once',
-      duration_in_months: durationInMonths,
+      max_redemptions: maxRedemptions,
       applies_to: {
-        products: productIds,
+        products: [productId],
       },
     });
 
     return coupon;
   }
+
 
   async constructEvent(req:Request): Promise<Stripe.Event> {
     const webhook = this.stripe.webhooks.constructEvent(

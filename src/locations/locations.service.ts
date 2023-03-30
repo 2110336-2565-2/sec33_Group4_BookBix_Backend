@@ -97,4 +97,8 @@ export class LocationsService {
     const location = await this.locationModel.findById(locationId);
     return location;
   }
+  async getProductIdByLocationName(locationName: string){
+    const location = await this.locationModel.findOne({name: locationName});
+    return location.stripe_prod_id;
+  }
 }
