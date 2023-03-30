@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Delete,
+  Get,
 } from '@nestjs/common';
 import { Time } from './entity/locations.entity';
 import { LocationsService } from './locations.service';
@@ -80,6 +81,13 @@ export class ReviewsController {
       status: HttpStatus.CREATED,
       msg: 'Location created',
     };
+  }
+
+  //@desc Get all locations
+  @Get()
+  async getAllLocations() {
+    const locations = await this.locationsService.getAllLocations();
+    return locations;
   }
 
   @Put(':locationId')

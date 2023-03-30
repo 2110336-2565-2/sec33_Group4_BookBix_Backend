@@ -59,6 +59,23 @@ export class LocationsService {
     return location.save();
   }
 
+  async getAllLocations() {
+    const locations = await this.locationModel.find();
+    return locations.map((location) => ({
+      id: location.id,
+      name: location.name,
+      address: location.address,
+      description: location.description,
+      url: location.url,
+      images: location.images,
+      reviews: location.reviews,
+      time: location.time,
+      available_days: location.available_days,
+      price: location.price,
+      avg_rating: location.avg_rating,
+    }));
+  }
+
   async updateLocation(
     locationId: string,
     time: Time,
