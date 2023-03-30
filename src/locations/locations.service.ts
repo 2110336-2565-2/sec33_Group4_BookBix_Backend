@@ -2,7 +2,7 @@ import { Injectable, HttpStatus } from '@nestjs/common';
 import { Location } from './entity/locations.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Time } from './entity/locations.entity';
+import { Time, Review } from './entity/locations.entity';
 
 @Injectable()
 export class LocationsService {
@@ -95,19 +95,28 @@ export class LocationsService {
 
   async updateLocation(
     locationId: string,
+    name: string,
+    address: string,
+    description: string,
+    url: string,
+    images: string[],
+    reviews: Review[],
     time: Time,
     available_days: string[],
+    price: number,
+    avg_rating: number,
   ) {
     const location = await this.locationModel.findById(locationId);
-    if (!location) {
-      return {
-        status: HttpStatus.NOT_FOUND,
-        msg: 'Location not found',
-      };
-    }
-    location.time.open_time = time.open_time;
-    location.time.close_time = time.close_time;
+    location.name = name;
+    location.address = address;
+    location.description = description;
+    location.url = url;
+    location.images = images;
+    location.reviews = reviews;
+    location.time = time;
     location.available_days = available_days;
+    location.price = price;
+    location.avg_rating = avg_rating;
     return location.save();
   }
 

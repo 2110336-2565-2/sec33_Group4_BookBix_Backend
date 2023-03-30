@@ -9,7 +9,7 @@ import {
   Delete,
   Get,
 } from '@nestjs/common';
-import { Time } from './entity/locations.entity';
+import { Review, Time } from './entity/locations.entity';
 import { LocationsService } from './locations.service';
 
 @Controller('locations')
@@ -100,19 +100,43 @@ export class ReviewsController {
   @Put(':locationId')
   async updateLocation(
     @Param('locationId') locationId: string,
+    @Body('name') name: string,
+    @Body('address') address: string,
+    @Body('description') description: string,
+    @Body('url') url: string,
+    @Body('images') images: string[],
+    @Body('reviews') reviews: Review[],
     @Body('time') time: Time,
     @Body('available_days') available_days: string[],
+    @Body('price') price: number,
+    @Body('avg_rating') avg_rating: number,
   ) {
-    if (!time || !available_days) {
-      return {
-        status: HttpStatus.BAD_REQUEST,
-        msg: 'Please provide time or available days',
-      };
+    if (
+      !name ||
+      !address ||
+      !description ||
+      !url ||
+      !images ||
+      !reviews ||
+      !time ||
+      !available_days ||
+      !price ||
+      !avg_rating
+    ) {
+      throw new HttpException('Invalid request body', HttpStatus.BAD_REQUEST);
     }
     const location = await this.locationsService.updateLocation(
       locationId,
+      name,
+      address,
+      description,
+      url,
+      images,
+      reviews,
       time,
       available_days,
+      price,
+      avg_rating,
     );
     return {
       status: HttpStatus.OK,
