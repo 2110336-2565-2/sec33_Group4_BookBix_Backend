@@ -228,64 +228,72 @@ export class AuthService {
     await this.emailService.sendEmail(email, emailSubject, emailBody);
   }
 
-  async generatePasswordResetToken(
-    user: any,
-    userType: string,
-  ): Promise<string> {
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    const payload = {
-      id: user.id,
-      type: userType,
-      sub: user.email,
-    };
-    console.log(payload);
-
-    const token = this.jwtService.sign(payload, { expiresIn: '1h' });
-    return token;
+  
+async generatePasswordResetToken(
+  user: any,
+  userType: string,
+): Promise<string> {
+  if (!user) {
+    throw new NotFoundException('User not found');
   }
 
-  async validatePasswordResetToken(token: string): Promise<boolean> {
-    let decoded;
-    try {
-      decoded = this.jwtService.verify(token);
-    } catch (error) {
-      return false;
-    }
-    console.log(decoded);
+  const payload = {
+    id: user.id,
+    type: userType,
+    sub: user.email,
+  };
+  console.log(payload);
 
-    let user: any;
-    switch (decoded.type) {
-      case UserType.CUSTOMER:
-        user = await this.customerService.getCustomerById(decoded.id);
-        break;
-      case UserType.ADMIN:
-        user = await this.adminService.getAdminById(decoded.id);
-        break;
-      case UserType.PROVIDER:
-        user = await this.providerService.getProviderById(decoded.id);
+  const jwtToken = this.jwtService.sign(payload, { expiresIn: '1h' });
+  const base64Token = Buffer.from(jwtToken).toString('base64');
 
-        break;
+  return base64Token;
+}
 
-      default:
-        break;
-    }
+async validatePasswordResetToken(token: string): Promise<boolean> {
+  const decodedToken = Buffer.from(token, 'base64').toString('utf-8');
 
-    if (!user) {
-      return false;
-    }
-    return true;
+
+  let decoded;
+  try {
+    decoded = this.jwtService.verify(decodedToken);
+  } catch (error) {
+    return false;
   }
+  console.log(decoded);
+
+  let user: any;
+  switch (decoded.type) {
+    case UserType.CUSTOMER:
+      user = await this.customerService.getCustomerById(decoded.id);
+      break;
+    case UserType.ADMIN:
+      user = await this.adminService.getAdminById(decoded.id);
+      break;
+    case UserType.PROVIDER:
+      user = await this.providerService.getProviderById(decoded.id);
+
+      break;
+
+    default:
+      break;
+  }
+
+  if (!user) {
+    return false;
+  }
+  return true;
+}
+
 
   async updatePasswordUsingToken(
     token: string,
     newPassword: string,
   ): Promise<void> {
+    const decodedToken = Buffer.from(token, 'base64').toString('utf-8');
     let decoded;
     try {
-      decoded = this.jwtService.verify(token);
+      decoded = this.jwtService.verify(decodedToken);
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
     }
