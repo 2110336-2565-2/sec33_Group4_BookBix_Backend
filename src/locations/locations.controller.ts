@@ -90,6 +90,13 @@ export class ReviewsController {
     return locations;
   }
 
+  //@desc Get a single location by its id
+  @Get(':locationId')
+  async getLocation(@Param('locationId') locationId: string) {
+    const location = await this.locationsService.getLocation(locationId);
+    return location;
+  }
+
   @Put(':locationId')
   async updateLocation(
     @Param('locationId') locationId: string,

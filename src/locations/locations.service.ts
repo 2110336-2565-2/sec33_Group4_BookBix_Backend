@@ -76,6 +76,23 @@ export class LocationsService {
     }));
   }
 
+  async getLocation(locationId: string) {
+    const location = await this.locationModel.findById(locationId);
+    return {
+      id: location.id,
+      name: location.name,
+      address: location.address,
+      description: location.description,
+      url: location.url,
+      images: location.images,
+      reviews: location.reviews,
+      time: location.time,
+      available_days: location.available_days,
+      price: location.price,
+      avg_rating: location.avg_rating,
+    };
+  }
+
   async updateLocation(
     locationId: string,
     time: Time,
