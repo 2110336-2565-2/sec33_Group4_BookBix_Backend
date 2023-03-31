@@ -24,6 +24,8 @@ export interface Location extends Document {
   available_days: string[];
   price: number;
   avg_rating: number;
+  stripe_prod_id: string;
+  stripe_price_id: string;
 }
 
 export const LocationSchema = new Schema({
@@ -85,6 +87,18 @@ export const LocationSchema = new Schema({
   avg_rating: {
     type: Number,
   },
+  type: {
+    type: String,
+  },
+  function: {
+    type: String,
+  },
+  stripe_prod_id: {
+    type: String,
+  },
+  stripe_price_id: {
+    type: String,
+  }
 });
 
 export const LocationModel = model<Location>('Location', LocationSchema);

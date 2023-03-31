@@ -30,4 +30,79 @@ export class LocationsService {
     location.avg_rating = totalRating / location.reviews.length;
     return location.save();
   }
+
+  async getLocation(locationName: string, minPrice: number, maxPrice: number, locationType: string, locationFunction: string){
+    let location;
+    if(locationName == '' && locationType == '' && locationFunction == ''){
+      location = await this.locationModel.find({ 'price': {$gte: minPrice, $lte: maxPrice} });
+      return location;
+    }else if(locationName !== '' && locationType == '' && locationFunction == ''){
+      location = await this.locationModel.find({
+        'name': locationName, 
+        'price':{$gte: minPrice, $lte: maxPrice}
+      });
+      return location;
+    }else if(locationName == '' && locationType !== '' && locationFunction == ''){
+      location = await this.locationModel.find({ 
+        'price':  {$gte: minPrice, $lte: maxPrice},
+        'type': locationType
+      });
+      return location;
+    }else if(locationName == '' && locationType == '' && locationFunction !== ''){
+      location = await this.locationModel.find({ 
+        'price': {$gte: minPrice, $lte: maxPrice},
+        'function': locationFunction
+      });
+      return location;
+    }else if(locationName !== '' && locationType !== '' && locationFunction == ''){
+      location = await this.locationModel.find({ 
+        'name': locationName, 
+        'price': {$gte: minPrice, $lte: maxPrice},
+        'type': locationType
+      });
+      return location;
+    }else if(locationName !== '' && locationType == '' && locationFunction !== ''){
+      location = await this.locationModel.find({ 
+        'name': locationName, 
+        'price': {$gte: minPrice, $lte: maxPrice},
+        'function': locationFunction
+      });
+      return location;
+    }else if(locationName == '' && locationType !== '' && locationFunction !== ''){
+      location = await this.locationModel.find({ 
+        'price': {$gte: minPrice, $lte: maxPrice}, 
+        'type': locationType, 
+        'function': locationFunction 
+      });
+      return location;
+    }else{
+      location = await this.locationModel.find({ 
+        'name': locationName, 
+        'price':  {$gte: minPrice, $lte: maxPrice},
+        'type': locationType,
+        'function': locationFunction
+      });
+      return location;
+    }
+  }
+  async updateStripeLocationProductIdAndPriceId(locationId: string, productId: string, priceId: string) {
+    const filter = { _id: locationId };
+    const update = { $set: { stripe_prod_id: productId, stripe_price_id: priceId } };
+    const options = { new: true };
+    const location = await this.locationModel.findOneAndUpdate(filter, update, options);
+    return location;
+
+  }
+  async getLocationById(locationId: string){
+    const location = await this.locationModel.findById(locationId);
+    return location;
+  }
+  async getProductIdByLocationName(locationName: string){
+    const location = await this.locationModel.findOne({name: locationName});
+    return location.stripe_prod_id;
+  }
+  async getImagesByLocationId(locationId: string){
+    const location = await this.getLocationById(locationId);
+    return location.images;
+  }
 }

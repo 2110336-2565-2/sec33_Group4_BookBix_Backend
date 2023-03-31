@@ -186,7 +186,7 @@ export class AuthController {
       msg: 'User logged in',
     };
   }
-  // TODO: create reset password feature
+  
   // generate password reset token
   @Post('/reset-password')
   async generatePasswordResetToken(@Body('email') email: string) {

@@ -1,28 +1,37 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 import { ConfigService } from '@nestjs/config';
+import { ProvidersService } from 'src/providers/providers.service';
+import { Request } from 'express';
+import { LocationsService } from 'src/locations/locations.service';
 
 @Injectable()
 export class StripeService {
   private stripe: Stripe;
 
-  constructor(private configService: ConfigService) {
+  constructor(private configService: ConfigService,
+    private readonly providersService: ProvidersService,
+    private readonly locationsService: LocationsService,
+  ) {
     const stripeSecretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
     this.stripe = new Stripe(stripeSecretKey, {
       apiVersion: '2022-11-15',
     });
   }
 
-  async createAccount(
+  async createAccount(email: string, country: string, businessType: Stripe.AccountCreateParams.BusinessType, companyName: string
   ): Promise<string> {
     const account = await this.stripe.accounts.create({
       type: 'standard',
+      country: country,
+      email: email,
+      business_type: businessType,
+      company: { name: companyName },
     });
-    console.log(account);
-    
+
     return account.id;
   }
-  
+
 
   async createAccountLink(accountId: string): Promise<string> {
     const accountLink = await this.stripe.accountLinks.create({
@@ -34,90 +43,94 @@ export class StripeService {
     return accountLink.url;
   }
 
-  async createPaymentIntent(amount: number, accountId: string): Promise<Stripe.PaymentIntent> {
-    const paymentIntent = await this.stripe.paymentIntents.create({
-      amount: amount,
-      currency: 'thb',
-      application_fee_amount: Math.floor(amount * 0.1), // Collect a 10% platform fee on the payment
-      transfer_data: {
-        destination: accountId,
-      },
-    });
-    return paymentIntent;
-  }
-  
-  async createCheckoutSession(priceId: string): Promise<Stripe.Checkout.Session> {
-    const session = await this.stripe.checkout.sessions.create({
-      line_items: [{ price: priceId, quantity: 1 }],
+
+  async createCheckoutSession(priceId: string, connectedAccountId: string, hour: number, takeReceipt: boolean): Promise<Stripe.Checkout.Session> {
+
+    const price = await this.stripe.prices.retrieve(priceId);
+    const applicationFeeAmount = hour * Math.round(price.unit_amount * 0.1); // calculate 10% of the total price
+    const email = await this.providersService.getProviderEmailByStripeAccountId(connectedAccountId);
+
+    const sessionParams = {
       mode: 'payment',
+      line_items: [{ price: priceId, quantity: hour }],
+      payment_intent_data: {
+        application_fee_amount: applicationFeeAmount,
+        transfer_data: { destination: connectedAccountId },
+        receipt_email: takeReceipt? email:"se.db.group4@gmail.com",
+      },
       success_url: 'http://localhost:3000/me/bookings',
       cancel_url: 'http://localhost:3000/me/bookings',
-    });
-  
+      allow_promotion_codes: true,
+    } as Stripe.Checkout.SessionCreateParams;
+
+    const session = await this.stripe.checkout.sessions.create(sessionParams);
     return session;
   }
-  
-  async capturePayment(paymentIntentId: string): Promise<Stripe.PaymentIntent> {
-    const paymentIntent = await this.stripe.paymentIntents.capture(paymentIntentId);
-    return paymentIntent;
-  }
-  
-  async createProduct(name: string): Promise<Stripe.Product> {
+
+
+
+
+  // read more about product and price object
+  // product: https://stripe.com/docs/api/products
+  // price: https://stripe.com/docs/api/prices
+  async createProductAndPrice(name: string, description: string, unitAmount: number, locationId: string): Promise<{ product: Stripe.Product, price: Stripe.Price }> {
+    const accountId = process.env.STRIPE_ACCOUNT_ID;
+    const images = await this.locationsService.getImagesByLocationId(locationId);
+
     const product = await this.stripe.products.create({
       name: name,
+      description: description,
+      images: images,
+      metadata: {
+        key: 'value',
+      },
+    }, {
+      stripeAccount: accountId,
     });
-    return product;
-  }
 
-  
-
-  async getProduct(productId: string): Promise<Stripe.Product> {
-    const product = await this.stripe.products.retrieve(productId);
-    return product;
-  }
-
-  async updateProduct(productId: string, metadata: Stripe.MetadataParam): Promise<Stripe.Product> {
-    const product = await this.stripe.products.update(productId, { metadata });
-    return product;
-  }
-
-  async listProducts(limit: number): Promise<Stripe.ApiList<Stripe.Product>> {
-    const products = await this.stripe.products.list({
-      limit,
-    });
-    return products;
-  }
-
-  async deleteProduct(productId: string): Promise<Stripe.DeletedProduct> {
-    const deletedProduct = await this.stripe.products.del(productId);
-    return deletedProduct;
-  }
-
-  
-  async createPrice(amount: number, currency: string, productId: string): Promise<Stripe.Price> {
     const price = await this.stripe.prices.create({
-      unit_amount: amount,
-      currency,
-      product: productId,
+      product: product.id,
+      unit_amount: unitAmount * 100, // convert to cent
+      currency: 'thb',
+    }, {
+      stripeAccount: accountId,
     });
-    return price;
+
+    return { product, price };
   }
 
-  async getPrice(priceId: string): Promise<Stripe.Price> {
-    const price = await this.stripe.prices.retrieve(priceId);
-    return price;
-  }
+  // read more about coupon object https://stripe.com/docs/api/coupons/object#coupon_object-duration
+  async createCoupon(
+    name: string,
+    amountOff?: number,
+    percentOff?: number,
+    maxRedemptions?: number,
+    locationName?: string,
+  ): Promise<Stripe.Coupon> {
 
-  async updatePrice(priceId: string, metadata: Stripe.MetadataParam): Promise<Stripe.Price> {
-    const price = await this.stripe.prices.update(priceId, { metadata });
-    return price;
-  }
-
-  async listPrices(limit: number): Promise<Stripe.ApiList<Stripe.Price>> {
-    const prices = await this.stripe.prices.list({
-      limit,
+    const productId = await this.locationsService.getProductIdByLocationName(locationName);
+    const coupon = await this.stripe.coupons.create({
+      name: name,
+      amount_off: amountOff,
+      percent_off: percentOff,
+      duration: 'once',
+      max_redemptions: maxRedemptions,
+      applies_to: {
+        products: [productId],
+      },
     });
-    return prices;
+
+    return coupon;
+  }
+
+
+  async constructEvent(req: Request): Promise<Stripe.Event> {
+    const webhook = this.stripe.webhooks.constructEvent(
+      req.body,
+      req.headers['stripe-signature'],
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+    return webhook;
   }
 
 

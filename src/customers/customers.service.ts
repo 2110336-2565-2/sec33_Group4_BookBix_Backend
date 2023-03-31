@@ -5,7 +5,7 @@ import { Customer, HistoryDevice } from './entities/customers.entity';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import * as crypto from 'crypto';
 import { DateTime } from 'luxon';
-import { EmailService } from '../auth/email/email.service';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class CustomersService {
