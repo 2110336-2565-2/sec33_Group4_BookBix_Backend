@@ -57,6 +57,15 @@ export class CustomersController {
     }
   }
 
+  //@desc Get customer profile by id
+  //@route GET /customers/:id
+  //@access Public
+  @Get('/:id')
+  async getCustomer(@Param('id') id: string) {
+    const customer = await this.customerService.getCustomerById(id);
+    return customer;
+  }
+
   @Get('/:customerId/history')
   async getHistory(@Param('customerId') customerId: string) {
     const history = await this.customerService.getHistory(customerId);
