@@ -72,11 +72,6 @@ export class CustomersService {
     return customer;
   }
 
-  async getProfile(customerId: string) {
-    const customer = await this.customerModel.findById(customerId);
-    return customer;
-  }
-
   async getHistory(customerId: string) {
     const customer = await this.customerModel.findById(customerId);
     return customer.device_history.reverse();

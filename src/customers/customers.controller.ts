@@ -61,8 +61,8 @@ export class CustomersController {
   //@route GET /customers/:id
   //@access Public
   @Get('/:id')
-  async getProfile(@Param('id') id: string) {
-    const customer = await this.customerService.getProfile(id);
+  async getCustomer(@Param('id') id: string) {
+    const customer = await this.customerService.getCustomerById(id);
     return customer;
   }
 
