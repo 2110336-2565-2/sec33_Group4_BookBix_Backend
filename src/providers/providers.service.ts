@@ -40,4 +40,19 @@ export class ProvidersService {
     return provider;
   }
 
+  async updateStripeAccountId(providerId: string, accountId: string): Promise<Provider> {
+    const filter = { _id: providerId };
+    const update = { $set: { stripe_account_id: accountId } };
+    const options = { new: true };
+    const provider = await this.providerModel.findOneAndUpdate(filter, update, options);
+    return provider;
+  }
+  async getStripeAccountId(providerId: string): Promise<string> {
+    const provider = await this.providerModel.findById(providerId);
+    return provider.stripe_account_id;
+  }
+  async getProviderEmailByStripeAccountId(stripeAccountId: string): Promise<string> {
+    const provider = await this.providerModel.findOne({ stripe_account_id: stripeAccountId });
+    return provider.email;
+  }
 }

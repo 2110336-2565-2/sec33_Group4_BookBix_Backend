@@ -22,4 +22,7 @@ export class CreateProviderDto {
   organization_name: string;
 
   locations: any[]; // this field is left as an any type, as it's unclear what type it should be
+
+  @IsString()
+  stripe_account_id?: string;
 }
