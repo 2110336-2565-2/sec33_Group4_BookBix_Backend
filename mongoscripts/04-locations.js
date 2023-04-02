@@ -14,14 +14,18 @@ db.locations.insertMany([
     ],
     reviews: [
       {
+        title: 'Beautiful Park',
         username: 'JohnDoe',
         rating: 4.0,
         text: 'CU Centenary Park is a beautiful and peaceful place to relax and enjoy the outdoors.',
+        dateCreated: '3 Jan 2021',
       },
       {
+        title: 'A must-see destination in Bangkok',
         username: 'JaneDoe',
         rating: 5.0,
         text: "I love visiting CU Centenary Park, it's a must-see destination in Bangkok.",
+        dateCreated: '3 Jan 2021',
       },
     ],
     time: {
@@ -56,14 +60,18 @@ db.locations.insertMany([
     ],
     reviews: [
       {
+        title: 'Stunning view from the top of the tower',
         username: 'JohnDoe',
         rating: 4.5,
         text: 'Stunning view from the top of the tower. Highly recommend visiting.',
+        dateCreated: '4 Jan 2021',
       },
       {
+        title: 'An iconic landmark of Paris',
         username: 'JaneDoe',
         rating: 5.0,
         text: 'An iconic landmark of Paris. Must-visit when in the city.',
+        dateCreated: '14 Feb 2022',
       },
     ],
     time: { open_time: '08:00', close_time: '16:00' },
@@ -87,14 +95,18 @@ db.locations.insertMany([
     ],
     reviews: [
       {
+        title: 'An iconic landmark of London',
         username: 'JohnDoe',
         rating: 4.0,
         text: 'An iconic landmark of London. Nice place for a photo op.',
+        dateCreated: '4 Jan 2021',
       },
       {
+        title: 'Fantastic view from the river',
         username: 'JaneDoe',
         rating: 4.5,
         text: 'Fantastic view from the river. Highly recommend taking a river cruise.',
+        dateCreated: '14 Feb 2022',
       },
     ],
     time: { open_time: '10:00', close_time: '16:00' },
@@ -117,14 +129,18 @@ db.locations.insertMany([
     ],
     reviews: [
       {
+        title: 'Beautiful park, lots of green spaces',
         username: 'JaneDoe',
         rating: 4.5,
         text: 'Beautiful park, lots of green spaces and a great place to relax.',
+        dateCreated: '14 Feb 2022',
       },
       {
+        title: 'One of the best parks I\'ve ever been to',
         username: 'JohnDoe',
         rating: 5.0,
         text: "One of the best parks I've ever been to. So much to do and see!",
+        dateCreated: '4 Jan 2021',
       },
     ],
     time: { open_time: '10:00', close_time: '16:00' },
