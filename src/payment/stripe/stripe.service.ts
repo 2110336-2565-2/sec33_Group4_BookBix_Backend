@@ -112,7 +112,7 @@ export class StripeService {
     const productId = await this.locationsService.getProductIdByLocationName(locationName);
     const coupon = await this.stripe.coupons.create({
       name: name,
-      amount_off: amountOff,
+      amount_off: amountOff*100,
       percent_off: percentOff,
       currency: 'thb',
       duration: 'once',
