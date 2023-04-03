@@ -5,7 +5,7 @@ export interface Review {
   username: string;
   rating: number;
   text: string;
-  dateCreated: Date;
+  dateCreated: string;
 }
 
 export interface Time {
@@ -61,7 +61,7 @@ export const LocationSchema = new Schema({
           type: String,
         },
         dateCreated: {
-          type: Date,
+          type: String,
         },
       },
     ],
@@ -97,7 +97,7 @@ export const LocationSchema = new Schema({
   },
   stripe_price_id: {
     type: String,
-  }
+  },
 });
 
 export const LocationModel = model<Location>('Location', LocationSchema);

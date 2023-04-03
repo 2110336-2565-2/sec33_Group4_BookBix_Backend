@@ -13,6 +13,28 @@ import {
 import { Review, Time } from './entity/locations.entity';
 import { LocationsService } from './locations.service';
 
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  const day = date.getDate();
+  const monthIndex = date.getMonth();
+  const year = date.getFullYear();
+  return `${day} ${months[monthIndex]} ${year}`;
+}
+
 @Controller('locations')
 export class ReviewsController {
   constructor(private readonly locationsService: LocationsService) {}
@@ -28,13 +50,16 @@ export class ReviewsController {
     if (!username || !rating || !text) {
       throw new HttpException('Invalid request body', HttpStatus.BAD_REQUEST);
     }
+    let date = new Date();
+    let formattedDate = formatDate(date);
+    console.log(`formattedDate: ${formattedDate}`);
     const review = await this.locationsService.addReview(
       locationId,
       title,
       username,
       rating,
       text,
-      new Date(),
+      formattedDate,
     );
     this.locationsService.calculateRating(locationId);
     return {
