@@ -1,32 +1,17 @@
-import { Body, Controller, Get, Post, Request } from '@nestjs/common';
+import { Body, Controller, Get, Post, Request, Param } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
 
 @Controller('bookings')
 export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
 
-  @Get('/')
+  @Get('/:customer_id')
   async getAllBookings(
     @Request() req,
-    @Body('customer_id') customer_id: string,
+    @Param('customer_id') customer_id: string,
   ) {
     const result = await this.bookingsService.getCustomerBookings(customer_id);
     return result;
-  }
-
-  @Get('/unavailabletimeslot')
-  async getUnavailableTimeslot(
-    @Request() req,
-    @Body('location_id') location_id: string,
-  ) {
-    const result = await this.bookingsService.getUnavailableTimeslot(
-      location_id,
-    );
-
-    return {
-      msg: 'Successfully get unavailable timeslot',
-      time_list: result,
-    };
   }
 
   @Post('/')
