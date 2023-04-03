@@ -145,19 +145,21 @@ export class LocationsService {
     locationType: string,
     locationFunction: string,
   ) {
-    const query = {};
+    const query: any = {};
 
-    if (locationName !== undefined && locationName !== '')
+    if (locationName) {
       query['name'] = { $regex: new RegExp(locationName, 'i'), $options: 'i' };
-    if (locationType !== undefined && locationType !== '')
+    }
+    if (locationType) {
       query['type'] = locationType;
-    if (locationFunction !== undefined && locationFunction !== '')
+    }
+    if (locationFunction) {
       query['function'] = locationFunction;
-
+    }
     query['price'] = { $gte: minPrice, $lte: maxPrice };
 
-    const location = await this.locationModel.find(query);
-    return location;
+    const locations = await this.locationModel.find(query);
+    return locations;
   }
 
   async updateStripeLocationProductIdAndPriceId(
