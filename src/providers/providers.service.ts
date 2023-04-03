@@ -67,13 +67,19 @@ export class ProvidersService {
     return provider.email;
   }
   async getLocationsByProviderId(providerId: string) {
-    const provider = await this.providerModel.findById(providerId);
-    console.log(provider.locations);
-    let result = [];
-    for (let i = 0; i < provider.locations.length; i++) {
-      let location = await this.locationModel.findById(provider.locations[i]);
-      result.push(location);
+    try {
+      const provider = await this.providerModel.findById(providerId);
+      let result = [];
+      for (let i = 0; i < provider.locations.length; i++) {
+        let location = await this.locationModel.findById(provider.locations[i]);
+        result.push(location);
+      }
+      return result;
+    } catch (error) {
+      return {
+        status: 404,
+        msg: 'Provider not found',
+      };
     }
-    return result;
   }
 }
