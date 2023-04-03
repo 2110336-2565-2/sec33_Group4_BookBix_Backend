@@ -68,9 +68,11 @@ export class StripeController {
     @Body('takeReceipt') takeReceipt: boolean): Promise<{ url: string }> {
 
     const provider = await this.providersService.getProviderByLocationId(location_id);
+    console.log(provider);
+    
     const location = await this.locationsService.getLocationById(location_id);
     const session = await this.stripeService.createCheckoutSession(location.stripe_price_id, provider.stripe_account_id, quantity, takeReceipt);
-
+    
     return { url: session.url };
   }
   @Post('create-product')

@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { CreateProviderDto } from './dto/create-provider.dto';
 import { UpdateProviderDto } from './dto/update-provider.dto';
 import { Provider } from './entities/provider.entity';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class ProvidersService {
@@ -11,8 +12,8 @@ export class ProvidersService {
   constructor(
     @InjectModel('providers') private readonly providerModel: Model<Provider>,
   ) {}
-  
-  
+
+
   async insertNewProvider(createProviderDto: CreateProviderDto) {
     const newProvider = new this.providerModel(createProviderDto);
     await newProvider.save();
@@ -56,14 +57,18 @@ export class ProvidersService {
     return provider.email;
   }
   async getProviderByLocationId(locationId: string) {
-   
-    const provider = await this.providerModel.findOne({ 'locations._id': locationId });
-      if (!provider) {
-        throw new Error(`Provider not found for location ID: ${locationId}`);
-      }
-      
-      return provider;
+
+    const providers = await this.providerModel.aggregate([
+      { $match: { 'locations': new ObjectId(locationId) } },
+    ]);
+    console.log(providers);
     
+    if (!providers) {
+      throw new Error(`Provider not found for location ID: ${locationId}`);
+    }
+
+    return await providers[0]; // there should only be one provider per location
+
   }
-  
+
 }
