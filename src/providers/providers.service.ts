@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { CreateProviderDto } from './dto/create-provider.dto';
 import { UpdateProviderDto } from './dto/update-provider.dto';
 import { Provider } from './entities/provider.entity';
+import { ObjectId } from 'mongodb';
 import { Location } from 'src/locations/entity/locations.entity';
 import { LocationsService } from 'src/locations/locations.service';
 
@@ -90,4 +91,19 @@ export class ProvidersService {
     const providers = await this.providerModel.find();
     return providers;
   }
+  async getProviderByLocationId(locationId: string) {
+
+    const providers = await this.providerModel.aggregate([
+      { $match: { 'locations': new ObjectId(locationId) } },
+    ]);
+    console.log(providers);
+    
+    if (!providers) {
+      throw new Error(`Provider not found for location ID: ${locationId}`);
+    }
+
+    return await providers[0]; // there should only be one provider per location
+
+  }
+
 }
