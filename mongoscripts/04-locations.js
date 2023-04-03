@@ -44,7 +44,9 @@ db.locations.insertMany([
     price: 300,
     avg_rating: 4.5,
     type: '',
-    function: ''
+    function: '',
+    stripe_prod_id: 'prod_Ne8jfzQh5GBLDi',
+    stripe_price_id: 'price_1MsqRqLx9QcUn2bQGtKzgaHe',
   },
   {
     _id: ObjectId('000000000004000000000002'),
@@ -79,7 +81,9 @@ db.locations.insertMany([
     price: 300,
     avg_rating: 4.75,
     type: '',
-    function: ''
+    function: '',
+    stripe_prod_id: 'prod_NS0TLz6jpPRPA5',
+    stripe_price_id: 'price_1Mh6ShLx9QcUn2bQSje143ye',
   },
   {
     _id: ObjectId('000000000004000000000003'),
@@ -114,7 +118,9 @@ db.locations.insertMany([
     price: 200,
     avg_rating: 4.25,
     type: '',
-    function: ''
+    function: '',
+    stripe_prod_id: 'prod_NS0NpY1NtJS4FI',
+    stripe_price_id: 'price_1Mh6MNLx9QcUn2bQXN1zFLqu',
   },
   {
     _id: ObjectId('000000000004000000000004'),
@@ -148,6 +154,8 @@ db.locations.insertMany([
     price: 350,
     avg_rating: 4.75,
     type: '',
-    function: ''
+    function: '',
+    stripe_prod_id: 'prod_NRzadUTHaxfMGP',
+    stripe_price_id: 'price_1Mh5bNLx9QcUn2bQopKZlGvM',
   },
 ]);

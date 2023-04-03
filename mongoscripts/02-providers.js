@@ -10,6 +10,7 @@ db.providers.insertMany([
       ObjectId('000000000004000000000001'),
       ObjectId('000000000004000000000002'),
     ],
+    stripe_account_id: 'acct_1Msp19Q6hJlrjKYC',
   },
   {
     _id: ObjectId('000000000002000000000002'),
@@ -19,6 +20,7 @@ db.providers.insertMany([
     date_created: new Date('2023-02-04T14:12:43.456Z'),
     organization_name: 'Provider Co.',
     locations: [ObjectId('000000000004000000000003')],
+    stripe_account_id: 'acct_1Msp63Q3c3AKfNRa',
   },
   {
     _id: ObjectId('000000000002000000000003'),
@@ -28,5 +30,7 @@ db.providers.insertMany([
     date_created: new Date('2023-02-04T09:23:11.111Z'),
     organization_name: 'Provider LLC',
     locations: [ObjectId('000000000004000000000004')],
+    stripe_account_id: 'acct_1MsoqgPqkVkOUZkn',
   },
+  
 ]);
