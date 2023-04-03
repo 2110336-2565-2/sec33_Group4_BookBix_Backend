@@ -157,8 +157,7 @@ export class ReviewsController {
       !reviews ||
       !time ||
       !available_days ||
-      !price ||
-      !avg_rating
+      !price
     ) {
       throw new HttpException('Invalid request body', HttpStatus.BAD_REQUEST);
     }
