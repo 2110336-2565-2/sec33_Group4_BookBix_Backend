@@ -114,6 +114,16 @@ export class LocationsService {
     try {
       const location = await this.locationModel.findById(locationId);
       location.remove();
+      // remove location from provider
+      let provider = await this.providerModel.find();
+      for (let i = 0; i < provider.length; i++) {
+        for (let j = 0; j < provider[i].locations.length; j++) {
+          if (provider[i].locations[j] == locationId) {
+            provider[i].locations.splice(j, 1);
+            await provider[i].save();
+          }
+        }
+      }
       return {
         status: HttpStatus.OK,
         msg: 'Location deleted',
