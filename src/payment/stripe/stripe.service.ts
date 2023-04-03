@@ -102,11 +102,12 @@ export class StripeService {
   // read more about coupon object https://stripe.com/docs/api/coupons/object#coupon_object-duration
   async createCoupon(
     name: string,
-    amountOff?: number,
-    percentOff?: number,
-    maxRedemptions?: number,
-    locationName?: string,
+    amountOff: number,
+    percentOff: number,
+    maxRedemptions: number,
+    locationName: string,
   ): Promise<Stripe.Coupon> {
+    
 
     const productId = await this.locationsService.getProductIdByLocationName(locationName);
     const coupon = await this.stripe.coupons.create({

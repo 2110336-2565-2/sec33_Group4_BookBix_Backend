@@ -88,12 +88,12 @@ export class StripeController {
   @Post('create-coupon')
   async createCoupon(
     @Body('name') name: string,
-    @Body('amountOff') amountOff?: number,
-    @Body('percentOff') percentOff?: number,
-    @Body('maxRedemptions') maxRedemptions?: number,
-    @Body('locationName') locationName?: string,
+    @Body('amountOff') amountOff: number,
+    @Body('percentOff') percentOff: number,
+    @Body('maxRedemptions') maxRedemptions: number,
+    @Body('locationName') locationName: string,
   ): Promise<{ statusCode: number; coupon: Stripe.Coupon }> {
-
+    
     const createdCoupon = await this.stripeService.createCoupon(
       name,
       amountOff,
