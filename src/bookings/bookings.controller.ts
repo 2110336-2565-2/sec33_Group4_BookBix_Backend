@@ -8,22 +8,18 @@ export class BookingsController {
   @Get('/')
   async getAllBookings(
     @Request() req,
-    @Body('customer_email') customer_email: string,
+    @Body('customer_id') customer_id: string,
   ) {
-    const result = await this.bookingsService.getCustomerBookings(
-      customer_email,
-    );
+    const result = await this.bookingsService.getCustomerBookings(customer_id);
     return result;
   }
 
   @Get('/unavailabletimeslot')
   async getUnavailableTimeslot(
     @Request() req,
-    @Body('provider_email') provider_email: string,
     @Body('location_id') location_id: string,
   ) {
     const result = await this.bookingsService.getUnavailableTimeslot(
-      provider_email,
       location_id,
     );
 
@@ -36,15 +32,13 @@ export class BookingsController {
   @Post('/')
   async createBooking(
     @Request() req,
-    @Body('customer_email') customer_email: string,
-    @Body('provider_email') provider_email: string,
+    @Body('customer_id') customer_id: string,
     @Body('location_id') location_id: string,
     @Body('start_date') start_date: string,
     @Body('duration') duration: number,
   ) {
     const result = await this.bookingsService.createBooking(
-      customer_email,
-      provider_email,
+      customer_id,
       location_id,
       start_date,
       duration,
@@ -54,5 +48,4 @@ export class BookingsController {
       bookingId: result.id,
     };
   }
-
 }
