@@ -82,4 +82,8 @@ export class ProvidersService {
       };
     }
   }
+  async getAllProviders() {
+    const providers = await this.providerModel.find();
+    return providers;
+  }
 }

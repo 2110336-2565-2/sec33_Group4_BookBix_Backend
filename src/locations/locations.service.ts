@@ -4,12 +4,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Time, Review } from './entity/locations.entity';
 import { Provider } from 'src/providers/entities/provider.entity';
+import { ProvidersService } from 'src/providers/providers.service';
 
 @Injectable()
 export class LocationsService {
   constructor(
     @InjectModel('locations') private readonly locationModel: Model<Location>,
-    @InjectModel('providers') private readonly providerModel: Model<Provider>,
+    private readonly providersService: ProvidersService,
   ) {}
 
   async addReview(
@@ -60,7 +61,7 @@ export class LocationsService {
       avg_rating,
     });
     console.log(location._id);
-    let provider = await this.providerModel.findById(providerId);
+    let provider = await this.providersService.getProviderById(providerId);
     provider.locations.push(location._id);
     await provider.save();
     return location.save();
@@ -115,7 +116,7 @@ export class LocationsService {
       const location = await this.locationModel.findById(locationId);
       location.remove();
       // remove location from provider
-      let provider = await this.providerModel.find();
+      let provider = await this.providersService.getAllProviders();
       for (let i = 0; i < provider.length; i++) {
         for (let j = 0; j < provider[i].locations.length; j++) {
           if (provider[i].locations[j] == locationId) {
