@@ -1,50 +1,29 @@
-import { Body, Controller, Get, Post, Request } from '@nestjs/common';
+import { Body, Controller, Get, Post, Request, Param } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
 
 @Controller('bookings')
 export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
 
-  @Get('/')
+  @Get('/:customer_id')
   async getAllBookings(
     @Request() req,
-    @Body('customer_email') customer_email: string,
+    @Param('customer_id') customer_id: string,
   ) {
-    const result = await this.bookingsService.getCustomerBookings(
-      customer_email,
-    );
+    const result = await this.bookingsService.getCustomerBookings(customer_id);
     return result;
-  }
-
-  @Get('/unavailabletimeslot')
-  async getUnavailableTimeslot(
-    @Request() req,
-    @Body('provider_email') provider_email: string,
-    @Body('location_id') location_id: string,
-  ) {
-    const result = await this.bookingsService.getUnavailableTimeslot(
-      provider_email,
-      location_id,
-    );
-
-    return {
-      msg: 'Successfully get unavailable timeslot',
-      time_list: result,
-    };
   }
 
   @Post('/')
   async createBooking(
     @Request() req,
-    @Body('customer_email') customer_email: string,
-    @Body('provider_email') provider_email: string,
+    @Body('customer_id') customer_id: string,
     @Body('location_id') location_id: string,
     @Body('start_date') start_date: string,
     @Body('duration') duration: number,
   ) {
     const result = await this.bookingsService.createBooking(
-      customer_email,
-      provider_email,
+      customer_id,
       location_id,
       start_date,
       duration,
@@ -54,5 +33,4 @@ export class BookingsController {
       bookingId: result.id,
     };
   }
-
 }
