@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { StripeService } from './stripe.service';
 import { StripeController } from './stripe.controller';
@@ -9,10 +9,15 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from 'src/auth/constants';
 import { LocationsModule } from 'src/locations/locations.module';
 @Module({
-  imports: [ConfigModule, ProvidersModule, LocationsModule,JwtModule.register({
-    secret: jwtConstants.secret,
-    signOptions: { expiresIn: '60s' },
-  })],
+  imports: [
+    ConfigModule,
+    ProvidersModule,
+    forwardRef(() => LocationsModule),
+    JwtModule.register({
+      secret: jwtConstants.secret,
+      signOptions: { expiresIn: '60s' },
+    }),
+  ],
   providers: [StripeService, JwtAuthService],
   controllers: [StripeController],
   exports: [StripeService],

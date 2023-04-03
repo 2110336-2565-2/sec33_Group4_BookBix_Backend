@@ -3,11 +3,13 @@ import { Location } from './entity/locations.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Time, Review } from './entity/locations.entity';
+import { StripeService } from 'src/payment/stripe/stripe.service';
 
 @Injectable()
 export class LocationsService {
   constructor(
     @InjectModel('locations') private readonly locationModel: Model<Location>,
+    private readonly stripeService: StripeService,
   ) {}
 
   async addReview(
@@ -41,7 +43,7 @@ export class LocationsService {
     reviews: string[],
     time: Time,
     available_days: string[],
-    price: number,
+    prices: number,
     avg_rating: number,
   ) {
     const location = new this.locationModel({
@@ -53,9 +55,23 @@ export class LocationsService {
       reviews,
       time,
       available_days,
-      price,
+      prices,
       avg_rating,
     });
+    // await location.save();
+    // let unitAmount = prices;
+    // let locationId = location._id;
+    // const { product, price } = await this.stripeService.createProductAndPrice(
+    //   name,
+    //   description,
+    //   unitAmount,
+    //   locationId,
+    // );
+    // await this.updateStripeLocationProductIdAndPriceId(
+    //   locationId,
+    //   product.id,
+    //   price.id,
+    // );
     return location.save();
   }
 
@@ -119,17 +135,26 @@ export class LocationsService {
     }
   }
 
-  async getLocation(locationName: string, minPrice: number, maxPrice: number, locationType: string, locationFunction: string){
+  async getLocation(
+    locationName: string,
+    minPrice: number,
+    maxPrice: number,
+    locationType: string,
+    locationFunction: string,
+  ) {
     const query = {};
 
-    if(locationName !== undefined && locationName !=='') query['name'] = {$regex: new RegExp(locationName, 'i'), $options: 'i'};
-    if(locationType !== undefined && locationType !== '') query['type'] = locationType;
-    if(locationFunction !== undefined && locationFunction !== '') query['function'] = locationFunction;
+    if (locationName !== undefined && locationName !== '')
+      query['name'] = { $regex: new RegExp(locationName, 'i'), $options: 'i' };
+    if (locationType !== undefined && locationType !== '')
+      query['type'] = locationType;
+    if (locationFunction !== undefined && locationFunction !== '')
+      query['function'] = locationFunction;
 
-    query['price'] = {$gte: minPrice, $lte: maxPrice};
+    query['price'] = { $gte: minPrice, $lte: maxPrice };
 
     const location = await this.locationModel.find(query);
-    return location
+    return location;
   }
 
   async updateStripeLocationProductIdAndPriceId(
