@@ -1,4 +1,4 @@
-import { Headers, Body, Controller, Get, HttpStatus, Param, Post, Req, Res, SetMetadata, UseGuards, ForbiddenException, HttpCode } from '@nestjs/common';
+import { Headers, Body, Controller, Get, HttpStatus, Param, Post, Req, Res, SetMetadata, UseGuards, ForbiddenException, HttpCode, ConflictException } from '@nestjs/common';
 import { StripeService } from './stripe.service';
 import Stripe from 'stripe';
 import { RolesGuard } from 'src/auth/guards/roles.auth.guard';
@@ -43,8 +43,12 @@ export class StripeController {
     if (type !== UserType.PROVIDER) {
       throw new ForbiddenException('Only providers can create a stripe account');
     }
+    
     const bType = body.businessType as Stripe.AccountCreateParams.BusinessType;
-
+    const provider = await this.providersService.getProviderById(id);
+    if (provider.stripe_account_id) {
+      throw new ConflictException('Provider already has a Stripe account');
+    }
     const accountId = await this.stripeService.createAccount(body.email, body.country, bType, body.companyName);
     const accountLinkUrl = await this.stripeService.createAccountLink(
       accountId,
