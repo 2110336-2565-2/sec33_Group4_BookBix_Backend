@@ -102,25 +102,40 @@ export class StripeService {
   // read more about coupon object https://stripe.com/docs/api/coupons/object#coupon_object-duration
   async createCoupon(
     name: string,
-    amountOff: number,
-    percentOff: number,
+    amountOff: number | undefined,
+    percentOff: number | undefined,
     maxRedemptions: number,
     locationName: string,
   ): Promise<{ coupon: Stripe.Coupon; promotionCode: Stripe.PromotionCode }> {
     const productId = await this.locationsService.getProductIdByLocationName(locationName);
 
     // Create the coupon
-    const coupon = await this.stripe.coupons.create({
-      name: name,
-      amount_off: amountOff * 100,
-      percent_off: percentOff,
-      currency: 'thb',
-      duration: 'once',
-      max_redemptions: maxRedemptions,
-      applies_to: {
-        products: [productId],
-      },
-    });
+    var coupon;
+    if (amountOff){
+      coupon = await this.stripe.coupons.create({
+        name: name,
+        amount_off: amountOff * 100,
+        percent_off: percentOff,
+        currency: 'thb',
+        duration: 'once',
+        max_redemptions: maxRedemptions,
+        applies_to: {
+          products: [productId],
+        },
+      });
+    }
+    if (percentOff){
+      coupon = await this.stripe.coupons.create({
+        name: name,
+        percent_off: percentOff,
+        duration: 'once',
+        max_redemptions: maxRedemptions,
+        applies_to: {
+          products: [productId],
+        },
+      });
+    }
+    
 
     // Create the promotion code
     const promotionCode = await this.stripe.promotionCodes.create({
