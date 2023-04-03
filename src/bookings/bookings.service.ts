@@ -68,6 +68,7 @@ export class BookingsService {
         hour12: false,
         hour: '2-digit',
         minute: '2-digit',
+        timeZone: 'Asia/Bangkok',
       });
 
       const endDate = new Date(date.end_time);
@@ -75,6 +76,7 @@ export class BookingsService {
         hour12: false,
         hour: '2-digit',
         minute: '2-digit',
+        timeZone: 'Asia/Bangkok',
       });
 
       const startDateString = startDate.toISOString().slice(0, 10);
@@ -104,6 +106,7 @@ export class BookingsService {
           hour12: false,
           hour: '2-digit',
           minute: '2-digit',
+          timeZone: 'Asia/Bangkok',
         }) +
         '/' +
         startDate.toISOString().slice(0, 10);
@@ -116,6 +119,7 @@ export class BookingsService {
           hour12: false,
           hour: '2-digit',
           minute: '2-digit',
+          timeZone: 'Asia/Bangkok',
         }) +
         '/' +
         endDate.toISOString().slice(0, 10);
