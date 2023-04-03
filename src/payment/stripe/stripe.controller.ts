@@ -13,6 +13,7 @@ import stripe from 'stripe';
 import { EmailService } from 'src/email/email.service';
 
 
+
 @Controller('stripe')
 export class StripeController {
   constructor(private stripeService: StripeService,
@@ -92,9 +93,9 @@ export class StripeController {
     @Body('percentOff') percentOff: number,
     @Body('maxRedemptions') maxRedemptions: number,
     @Body('locationName') locationName: string,
-  ): Promise<{ statusCode: number; coupon: Stripe.Coupon }> {
+  ): Promise<{ statusCode: number; coupon: Stripe.Coupon; promotionCode: Stripe.PromotionCode }> {
     
-    const createdCoupon = await this.stripeService.createCoupon(
+    const { coupon, promotionCode } = await this.stripeService.createCoupon(
       name,
       amountOff,
       percentOff,
@@ -104,9 +105,11 @@ export class StripeController {
 
     return {
       statusCode: HttpStatus.CREATED,
-      coupon: createdCoupon,
+      coupon,
+      promotionCode,
     };
   }
+
 
 
   @Post('webhook')

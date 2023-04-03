@@ -106,13 +106,13 @@ export class StripeService {
     percentOff: number,
     maxRedemptions: number,
     locationName: string,
-  ): Promise<Stripe.Coupon> {
-    
-
+  ): Promise<{ coupon: Stripe.Coupon; promotionCode: Stripe.PromotionCode }> {
     const productId = await this.locationsService.getProductIdByLocationName(locationName);
+
+    // Create the coupon
     const coupon = await this.stripe.coupons.create({
       name: name,
-      amount_off: amountOff*100,
+      amount_off: amountOff * 100,
       percent_off: percentOff,
       currency: 'thb',
       duration: 'once',
@@ -122,8 +122,14 @@ export class StripeService {
       },
     });
 
-    return coupon;
+    // Create the promotion code
+    const promotionCode = await this.stripe.promotionCodes.create({
+      coupon: coupon.id
+    });
+
+    return { coupon, promotionCode };
   }
+
 
 
   async constructEvent(req: Request): Promise<Stripe.Event> {
