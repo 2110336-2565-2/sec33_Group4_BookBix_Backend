@@ -124,7 +124,8 @@ export class StripeService {
 
     // Create the promotion code
     const promotionCode = await this.stripe.promotionCodes.create({
-      coupon: coupon.id
+      coupon: coupon.id,
+      code: name,
     });
 
     return { coupon, promotionCode };
