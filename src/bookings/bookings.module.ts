@@ -10,8 +10,8 @@ import { LocationsModule } from 'src/locations/locations.module';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'bookings', schema: BookingSchema }]),
-    CustomersModule,
-    ProvidersModule,
+    forwardRef(() => CustomersModule),
+    forwardRef(() => ProvidersModule),
     forwardRef(() => LocationsModule),
   ],
   controllers: [BookingsController],

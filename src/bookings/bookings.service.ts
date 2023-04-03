@@ -126,9 +126,9 @@ export class BookingsService {
           booking._id.toString().slice(5, 8) +
           booking._id.toString().slice(0, 3) +
           booking._id.toString().slice(3, 5),
-        location_name: (await locationObj).name, // TODO: get location name
+        location_name: (await locationObj).name,
         location_id: booking.location_id,
-        price: (await locationObj).price, // TODO: get price
+        price: (await locationObj).price,
         period: {
           start: startDateString,
           end: endDateString,
