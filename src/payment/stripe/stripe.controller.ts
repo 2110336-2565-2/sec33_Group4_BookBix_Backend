@@ -63,12 +63,11 @@ export class StripeController {
 
   @Post('create-checkout-session')
   async createCheckoutSession(
-    @Body('provider_id') provider_id: string,
     @Body('location_id') location_id: string,
     @Body('quantity') quantity: number,
     @Body('takeReceipt') takeReceipt: boolean): Promise<{ url: string }> {
 
-    const provider = await this.providersService.getProviderById(provider_id);
+    const provider = await this.providersService.getProviderByLocationId(location_id);
     const location = await this.locationsService.getLocationById(location_id);
     const session = await this.stripeService.createCheckoutSession(location.stripe_price_id, provider.stripe_account_id, quantity, takeReceipt);
 

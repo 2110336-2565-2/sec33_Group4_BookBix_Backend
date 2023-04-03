@@ -55,4 +55,15 @@ export class ProvidersService {
     const provider = await this.providerModel.findOne({ stripe_account_id: stripeAccountId });
     return provider.email;
   }
+  async getProviderByLocationId(locationId: string) {
+   
+    const provider = await this.providerModel.findOne({ 'locations._id': locationId });
+      if (!provider) {
+        throw new Error(`Provider not found for location ID: ${locationId}`);
+      }
+      
+      return provider;
+    
+  }
+  
 }
