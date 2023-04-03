@@ -16,7 +16,7 @@ export class LocationsService {
     username: string,
     rating: number,
     text: string,
-    dateCreated: Date,
+    dateCreated: string,
   ) {
     const location = await this.locationModel.findById(locationId);
     location.reviews.push({ title, username, rating, text, dateCreated });
