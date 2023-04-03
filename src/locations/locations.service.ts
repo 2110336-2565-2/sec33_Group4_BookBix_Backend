@@ -1,4 +1,4 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpStatus, Inject, forwardRef } from '@nestjs/common';
 import { Location } from './entity/locations.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -10,6 +10,7 @@ import { ProvidersService } from 'src/providers/providers.service';
 export class LocationsService {
   constructor(
     @InjectModel('locations') private readonly locationModel: Model<Location>,
+    @Inject(forwardRef(() => ProvidersService))
     private readonly providersService: ProvidersService,
   ) {}
 

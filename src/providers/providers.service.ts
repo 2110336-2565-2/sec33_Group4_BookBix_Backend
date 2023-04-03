@@ -1,16 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateProviderDto } from './dto/create-provider.dto';
 import { UpdateProviderDto } from './dto/update-provider.dto';
 import { Provider } from './entities/provider.entity';
 import { Location } from 'src/locations/entity/locations.entity';
+import { LocationsService } from 'src/locations/locations.service';
 
 @Injectable()
 export class ProvidersService {
   constructor(
     @InjectModel('providers') private readonly providerModel: Model<Provider>,
-    @InjectModel('locations') private readonly locationModel: Model<Location>,
+    @Inject(forwardRef(() => LocationsService))
+    private readonly locationsService: LocationsService,
   ) {}
 
   async insertNewProvider(createProviderDto: CreateProviderDto) {
@@ -71,7 +73,9 @@ export class ProvidersService {
       const provider = await this.providerModel.findById(providerId);
       let result = [];
       for (let i = 0; i < provider.locations.length; i++) {
-        let location = await this.locationModel.findById(provider.locations[i]);
+        let location = await this.locationsService.getLocationById(
+          provider.locations[i],
+        );
         result.push(location);
       }
       return result;
