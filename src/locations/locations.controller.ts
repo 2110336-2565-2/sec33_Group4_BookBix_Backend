@@ -81,6 +81,7 @@ export class ReviewsController {
 
   @Post()
   async createLocation(
+    @Body('providerId') providerId: string,
     @Body('name') name: string,
     @Body('address') address: string,
     @Body('description') description: string,
@@ -91,6 +92,7 @@ export class ReviewsController {
     @Body('price') price: number,
   ) {
     if (
+      !providerId ||
       !name ||
       !address ||
       !description ||
@@ -103,6 +105,7 @@ export class ReviewsController {
       throw new HttpException('Invalid request body', HttpStatus.BAD_REQUEST);
     }
     const location = await this.locationsService.createLocation(
+      providerId,
       name,
       address,
       description,

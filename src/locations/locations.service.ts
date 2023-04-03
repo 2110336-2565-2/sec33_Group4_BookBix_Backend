@@ -3,11 +3,13 @@ import { Location } from './entity/locations.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Time, Review } from './entity/locations.entity';
+import { Provider } from 'src/providers/entities/provider.entity';
 
 @Injectable()
 export class LocationsService {
   constructor(
     @InjectModel('locations') private readonly locationModel: Model<Location>,
+    @InjectModel('providers') private readonly providerModel: Model<Provider>,
   ) {}
 
   async addReview(
@@ -33,6 +35,7 @@ export class LocationsService {
   }
 
   async createLocation(
+    providerId: string,
     name: string,
     address: string,
     description: string,
@@ -56,6 +59,10 @@ export class LocationsService {
       price,
       avg_rating,
     });
+    console.log(location._id);
+    let provider = await this.providerModel.findById(providerId);
+    provider.locations.push(location._id);
+    await provider.save();
     return location.save();
   }
 
@@ -119,17 +126,26 @@ export class LocationsService {
     }
   }
 
-  async getLocation(locationName: string, minPrice: number, maxPrice: number, locationType: string, locationFunction: string){
+  async getLocation(
+    locationName: string,
+    minPrice: number,
+    maxPrice: number,
+    locationType: string,
+    locationFunction: string,
+  ) {
     const query = {};
 
-    if(locationName !== undefined && locationName !=='') query['name'] = {$regex: new RegExp(locationName, 'i'), $options: 'i'};
-    if(locationType !== undefined && locationType !== '') query['type'] = locationType;
-    if(locationFunction !== undefined && locationFunction !== '') query['function'] = locationFunction;
+    if (locationName !== undefined && locationName !== '')
+      query['name'] = { $regex: new RegExp(locationName, 'i'), $options: 'i' };
+    if (locationType !== undefined && locationType !== '')
+      query['type'] = locationType;
+    if (locationFunction !== undefined && locationFunction !== '')
+      query['function'] = locationFunction;
 
-    query['price'] = {$gte: minPrice, $lte: maxPrice};
+    query['price'] = { $gte: minPrice, $lte: maxPrice };
 
     const location = await this.locationModel.find(query);
-    return location
+    return location;
   }
 
   async updateStripeLocationProductIdAndPriceId(
