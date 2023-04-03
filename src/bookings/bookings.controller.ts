@@ -31,6 +31,8 @@ export class BookingsController {
     return {
       msg: 'Booking successfully created',
       bookingId: result.id,
+      locationId: location_id,
+      duration: duration,
     };
   }
 }
