@@ -11,7 +11,7 @@ import { LocationsModule } from 'src/locations/locations.module';
 @Module({
   imports: [
     ConfigModule,
-    ProvidersModule,
+    forwardRef(() => ProvidersModule),
     forwardRef(() => LocationsModule),
     JwtModule.register({
       secret: jwtConstants.secret,

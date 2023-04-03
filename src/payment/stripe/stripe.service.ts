@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  forwardRef,
+  Inject,
+} from '@nestjs/common';
 import Stripe from 'stripe';
 import { ConfigService } from '@nestjs/config';
 import { ProvidersService } from 'src/providers/providers.service';
@@ -9,7 +14,9 @@ import { LocationsService } from 'src/locations/locations.service';
 export class StripeService {
   private stripe: Stripe;
 
-  constructor(private configService: ConfigService,
+  constructor(
+    private configService: ConfigService,
+    @Inject(forwardRef(() => ProvidersService))
     private readonly providersService: ProvidersService,
     private readonly locationsService: LocationsService,
   ) {
@@ -19,7 +26,11 @@ export class StripeService {
     });
   }
 
-  async createAccount(email: string, country: string, businessType: Stripe.AccountCreateParams.BusinessType, companyName: string
+  async createAccount(
+    email: string,
+    country: string,
+    businessType: Stripe.AccountCreateParams.BusinessType,
+    companyName: string,
   ): Promise<string> {
     const account = await this.stripe.accounts.create({
       type: 'standard',
@@ -32,7 +43,6 @@ export class StripeService {
     return account.id;
   }
 
-
   async createAccountLink(accountId: string): Promise<string> {
     const accountLink = await this.stripe.accountLinks.create({
       account: accountId,
@@ -43,12 +53,17 @@ export class StripeService {
     return accountLink.url;
   }
 
-
-  async createCheckoutSession(priceId: string, connectedAccountId: string, hour: number, takeReceipt: boolean): Promise<Stripe.Checkout.Session> {
-
+  async createCheckoutSession(
+    priceId: string,
+    connectedAccountId: string,
+    hour: number,
+    takeReceipt: boolean,
+  ): Promise<Stripe.Checkout.Session> {
     const price = await this.stripe.prices.retrieve(priceId);
     const applicationFeeAmount = hour * Math.round(price.unit_amount * 0.1); // calculate 10% of the total price
-    const email = await this.providersService.getProviderEmailByStripeAccountId(connectedAccountId);
+    const email = await this.providersService.getProviderEmailByStripeAccountId(
+      connectedAccountId,
+    );
 
     const sessionParams = {
       mode: 'payment',
@@ -56,7 +71,7 @@ export class StripeService {
       payment_intent_data: {
         application_fee_amount: applicationFeeAmount,
         transfer_data: { destination: connectedAccountId },
-        receipt_email: takeReceipt? email:"se.db.group4@gmail.com",
+        receipt_email: takeReceipt ? email : 'se.db.group4@gmail.com',
       },
       success_url: 'http://localhost:3000/me/bookings',
       cancel_url: 'http://localhost:3000/me/bookings',
@@ -67,34 +82,44 @@ export class StripeService {
     return session;
   }
 
-
-
-
   // read more about product and price object
   // product: https://stripe.com/docs/api/products
   // price: https://stripe.com/docs/api/prices
-  async createProductAndPrice(name: string, description: string, unitAmount: number, locationId: string): Promise<{ product: Stripe.Product, price: Stripe.Price }> {
+  async createProductAndPrice(
+    name: string,
+    description: string,
+    unitAmount: number,
+    locationId: string,
+  ): Promise<{ product: Stripe.Product; price: Stripe.Price }> {
     const accountId = process.env.STRIPE_ACCOUNT_ID;
-    const images = await this.locationsService.getImagesByLocationId(locationId);
+    const images = await this.locationsService.getImagesByLocationId(
+      locationId,
+    );
 
-    const product = await this.stripe.products.create({
-      name: name,
-      description: description,
-      images: images,
-      metadata: {
-        key: 'value',
+    const product = await this.stripe.products.create(
+      {
+        name: name,
+        description: description,
+        images: images,
+        metadata: {
+          key: 'value',
+        },
       },
-    }, {
-      stripeAccount: accountId,
-    });
+      {
+        stripeAccount: accountId,
+      },
+    );
 
-    const price = await this.stripe.prices.create({
-      product: product.id,
-      unit_amount: unitAmount * 100, // convert to cent
-      currency: 'thb',
-    }, {
-      stripeAccount: accountId,
-    });
+    const price = await this.stripe.prices.create(
+      {
+        product: product.id,
+        unit_amount: unitAmount * 100, // convert to cent
+        currency: 'thb',
+      },
+      {
+        stripeAccount: accountId,
+      },
+    );
 
     return { product, price };
   }
@@ -107,8 +132,9 @@ export class StripeService {
     maxRedemptions?: number,
     locationName?: string,
   ): Promise<Stripe.Coupon> {
-
-    const productId = await this.locationsService.getProductIdByLocationName(locationName);
+    const productId = await this.locationsService.getProductIdByLocationName(
+      locationName,
+    );
     const coupon = await this.stripe.coupons.create({
       name: name,
       amount_off: amountOff,
@@ -123,15 +149,12 @@ export class StripeService {
     return coupon;
   }
 
-
   async constructEvent(req: Request): Promise<Stripe.Event> {
     const webhook = this.stripe.webhooks.constructEvent(
       req.body,
       req.headers['stripe-signature'],
-      process.env.STRIPE_WEBHOOK_SECRET
+      process.env.STRIPE_WEBHOOK_SECRET,
     );
     return webhook;
   }
-
-
 }

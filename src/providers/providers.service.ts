@@ -4,15 +4,15 @@ import { Model } from 'mongoose';
 import { CreateProviderDto } from './dto/create-provider.dto';
 import { UpdateProviderDto } from './dto/update-provider.dto';
 import { Provider } from './entities/provider.entity';
+import { StripeService } from 'src/payment/stripe/stripe.service';
 
 @Injectable()
 export class ProvidersService {
-
   constructor(
     @InjectModel('providers') private readonly providerModel: Model<Provider>,
+    private readonly stripeService: StripeService,
   ) {}
-  
-  
+
   async insertNewProvider(createProviderDto: CreateProviderDto) {
     const newProvider = new this.providerModel(createProviderDto);
     await newProvider.save();
@@ -40,19 +40,30 @@ export class ProvidersService {
     return provider;
   }
 
-  async updateStripeAccountId(providerId: string, accountId: string): Promise<Provider> {
+  async updateStripeAccountId(
+    providerId: string,
+    accountId: string,
+  ): Promise<Provider> {
     const filter = { _id: providerId };
     const update = { $set: { stripe_account_id: accountId } };
     const options = { new: true };
-    const provider = await this.providerModel.findOneAndUpdate(filter, update, options);
+    const provider = await this.providerModel.findOneAndUpdate(
+      filter,
+      update,
+      options,
+    );
     return provider;
   }
   async getStripeAccountId(providerId: string): Promise<string> {
     const provider = await this.providerModel.findById(providerId);
     return provider.stripe_account_id;
   }
-  async getProviderEmailByStripeAccountId(stripeAccountId: string): Promise<string> {
-    const provider = await this.providerModel.findOne({ stripe_account_id: stripeAccountId });
+  async getProviderEmailByStripeAccountId(
+    stripeAccountId: string,
+  ): Promise<string> {
+    const provider = await this.providerModel.findOne({
+      stripe_account_id: stripeAccountId,
+    });
     return provider.email;
   }
 }

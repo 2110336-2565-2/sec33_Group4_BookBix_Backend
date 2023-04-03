@@ -13,7 +13,7 @@ import { StripeService } from 'src/payment/stripe/stripe.service';
     CustomersModule,
     forwardRef(() => StripeModule),
   ],
-  providers: [LocationsService, StripeService],
+  providers: [LocationsService],
   controllers: [ReviewsController],
   exports: [LocationsService],
 })
