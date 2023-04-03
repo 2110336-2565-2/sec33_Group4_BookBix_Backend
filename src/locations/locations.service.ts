@@ -1,13 +1,17 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpStatus, Inject, forwardRef } from '@nestjs/common';
 import { Location } from './entity/locations.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Time, Review } from './entity/locations.entity';
+import { Provider } from 'src/providers/entities/provider.entity';
+import { ProvidersService } from 'src/providers/providers.service';
 
 @Injectable()
 export class LocationsService {
   constructor(
     @InjectModel('locations') private readonly locationModel: Model<Location>,
+    @Inject(forwardRef(() => ProvidersService))
+    private readonly providersService: ProvidersService,
   ) {}
 
   async addReview(
@@ -33,6 +37,7 @@ export class LocationsService {
   }
 
   async createLocation(
+    providerId: string,
     name: string,
     address: string,
     description: string,
@@ -56,6 +61,10 @@ export class LocationsService {
       price,
       avg_rating,
     });
+    console.log(location._id);
+    let provider = await this.providersService.getProviderById(providerId);
+    provider.locations.push(location._id);
+    await provider.save();
     return location.save();
   }
 
@@ -107,6 +116,16 @@ export class LocationsService {
     try {
       const location = await this.locationModel.findById(locationId);
       location.remove();
+      // remove location from provider
+      let provider = await this.providersService.getAllProviders();
+      for (let i = 0; i < provider.length; i++) {
+        for (let j = 0; j < provider[i].locations.length; j++) {
+          if (provider[i].locations[j] == locationId) {
+            provider[i].locations.splice(j, 1);
+            await provider[i].save();
+          }
+        }
+      }
       return {
         status: HttpStatus.OK,
         msg: 'Location deleted',
@@ -119,17 +138,28 @@ export class LocationsService {
     }
   }
 
-  async getLocation(locationName: string, minPrice: number, maxPrice: number, locationType: string, locationFunction: string){
-    const query = {};
+  async getLocation(
+    locationName: string,
+    minPrice: number,
+    maxPrice: number,
+    locationType: string,
+    locationFunction: string,
+  ) {
+    const query: any = {};
 
-    if(locationName !== undefined && locationName !=='') query['name'] = {$regex: new RegExp(locationName, 'i'), $options: 'i'};
-    if(locationType !== undefined && locationType !== '') query['type'] = locationType;
-    if(locationFunction !== undefined && locationFunction !== '') query['function'] = locationFunction;
+    if (locationName) {
+      query['name'] = { $regex: new RegExp(locationName, 'i'), $options: 'i' };
+    }
+    if (locationType) {
+      query['type'] = locationType;
+    }
+    if (locationFunction) {
+      query['function'] = locationFunction;
+    }
+    query['price'] = { $gte: minPrice, $lte: maxPrice };
 
-    query['price'] = {$gte: minPrice, $lte: maxPrice};
-
-    const location = await this.locationModel.find(query);
-    return location
+    const locations = await this.locationModel.find(query);
+    return locations;
   }
 
   async updateStripeLocationProductIdAndPriceId(
