@@ -114,6 +114,7 @@ export class StripeService {
       name: name,
       amount_off: amountOff,
       percent_off: percentOff,
+      currency: 'thb',
       duration: 'once',
       max_redemptions: maxRedemptions,
       applies_to: {
