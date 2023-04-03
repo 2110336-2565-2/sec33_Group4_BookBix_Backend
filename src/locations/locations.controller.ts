@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { Review, Time } from './entity/locations.entity';
 import { LocationsService } from './locations.service';
+import { BookingsService } from 'src/bookings/bookings.service';
 
 function formatDate(dateString) {
   const date = new Date(dateString);
@@ -37,7 +38,10 @@ function formatDate(dateString) {
 
 @Controller('locations')
 export class ReviewsController {
-  constructor(private readonly locationsService: LocationsService) {}
+  constructor(
+    private readonly locationsService: LocationsService,
+    private readonly bookingsService: BookingsService,
+  ) {}
 
   @Post(':locationId/reviews')
   async addReview(
@@ -106,6 +110,7 @@ export class ReviewsController {
 
   @Post()
   async createLocation(
+    @Body('providerId') providerId: string,
     @Body('name') name: string,
     @Body('address') address: string,
     @Body('description') description: string,
@@ -116,6 +121,7 @@ export class ReviewsController {
     @Body('price') price: number,
   ) {
     if (
+      !providerId ||
       !name ||
       !address ||
       !description ||
@@ -128,6 +134,7 @@ export class ReviewsController {
       throw new HttpException('Invalid request body', HttpStatus.BAD_REQUEST);
     }
     const location = await this.locationsService.createLocation(
+      providerId,
       name,
       address,
       description,
@@ -209,5 +216,17 @@ export class ReviewsController {
   async deleteLocation(@Param('locationId') locationId: string) {
     const location = await this.locationsService.deleteLocation(locationId);
     return location;
+  }
+
+  @Get(':locationId/bookings')
+  async getUnavailableTimeslot(@Param('locationId') locationId: string) {
+    const result = await this.bookingsService.getUnavailableTimeslot(
+      locationId,
+    );
+
+    return {
+      msg: 'Successfully get unavailable timeslot',
+      time_list: result,
+    };
   }
 }
