@@ -20,7 +20,7 @@ export interface Location extends Document {
   url: string;
   images: string[];
   reviews: Review[];
-  time: Time[];
+  time: Time;
   available_days: string[];
   price: number;
   avg_rating: number;
@@ -67,16 +67,15 @@ export const LocationSchema = new Schema({
     ],
   },
   time: {
-    type: [
-      {
-        open_time: {
-          type: String,
-        },
-        close_time: {
-          type: String,
-        },
+    type: {
+      _id: false,
+      open_time: {
+        type: String,
       },
-    ],
+      close_time: {
+        type: String,
+      },
+    },
   },
   available_days: {
     type: [String],
