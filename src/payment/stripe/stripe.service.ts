@@ -36,8 +36,8 @@ export class StripeService {
   async createAccountLink(accountId: string): Promise<string> {
     const accountLink = await this.stripe.accountLinks.create({
       account: accountId,
-      refresh_url: 'http://localhost:3000/stripe/refresh',
-      return_url: 'http://localhost:3000/stripe/return',
+      refresh_url: 'http://localhost:3000/locations',
+      return_url: 'http://localhost:3000/locations',
       type: 'account_onboarding',
     });
     return accountLink.url;
