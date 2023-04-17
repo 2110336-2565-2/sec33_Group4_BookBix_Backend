@@ -31,7 +31,6 @@ async function bootstrap() {
     .setTitle('BookBix API')
     .setDescription('The API description for BookBix website')
     .setVersion('1.0')
-    .addTag('RestAPI')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
