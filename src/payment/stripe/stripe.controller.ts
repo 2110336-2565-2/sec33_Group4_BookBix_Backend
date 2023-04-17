@@ -51,6 +51,14 @@ export class StripeController {
 
   @Post('create-provider-account')
   @ApiOperation({ summary: 'Create a Stripe account for a provider' })
+  @ApiResponse({
+    status: 403,
+    description: 'Only providers can create a stripe account',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'The stripe account has been successfully created',
+  })
   async createProviderAccount(
     @Body()
     body: {
@@ -93,7 +101,22 @@ export class StripeController {
 
   @Post('create-checkout-session')
   @ApiOperation({ summary: 'Create a Stripe checkout session' })
-  @ApiBody({ type: CreateCheckoutSessionDto })
+  @ApiBody({
+    type: CreateCheckoutSessionDto,
+    examples: {
+      'Create a checkout session with a description': {
+        value: {
+          location_id: '000000000004000000000001',
+          quantity: 3,
+          takeReceipt: true,
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'The checkout session has been successfully created',
+  })
   async createCheckoutSession(
     @Body('location_id') location_id: string,
     @Body('quantity') quantity: number,
@@ -115,7 +138,23 @@ export class StripeController {
   }
   @Post('create-product')
   @ApiOperation({ summary: 'Create a product' })
-  @ApiBody({ type: CreateProductDto })
+  @ApiBody({
+    type: CreateProductDto,
+    examples: {
+      'Create a product with a description': {
+        value: {
+          locationId: '000000000004000000000001',
+          name: 'product',
+          description: 'A description of my product',
+          unitAmount: 2000,
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'The product has been successfully created',
+  })
   async createProductAndPrice(
     @Body('locationId') locationId: string,
     @Body('name') name: string,
@@ -138,11 +177,26 @@ export class StripeController {
 
   @Post('create-coupon')
   @ApiOperation({ summary: 'Create a coupon' })
-  @ApiBody({ type: CreateCouponDto })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Coupon created successfully',
+  @ApiBody({
     type: CreateCouponDto,
+    examples: {
+      'Create a coupon with a percentOff and maxRedemptions': {
+        value: {
+          name: 'coupon1',
+          percentOff: 50,
+          maxRedemptions: 500,
+          locationName: 'CU Centenary Park',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'The coupon has been successfully created',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'The coupon could not be created',
   })
   async createCoupon(
     @Body('name') name: string,
