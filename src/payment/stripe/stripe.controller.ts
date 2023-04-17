@@ -188,6 +188,14 @@ export class StripeController {
           locationName: 'CU Centenary Park',
         },
       },
+      'Create a coupon with an amountOff and maxRedemptions': {
+        value: {
+          name: 'coupon2',
+          amountOff: 50,
+          maxRedemptions: 500,
+          locationName: 'CU Centenary Park',
+        },
+      },
     },
   })
   @ApiResponse({
