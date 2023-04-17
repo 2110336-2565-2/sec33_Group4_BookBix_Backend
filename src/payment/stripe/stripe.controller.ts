@@ -169,42 +169,4 @@ export class StripeController {
       promotionCode,
     };
   }
-
-  @Post('webhook')
-  @ApiOperation({ summary: 'Handle Stripe webhooks' })
-  @HttpCode(HttpStatus.OK)
-  async handleWebhook(@Body() payload: any): Promise<any> {
-    let event;
-
-    // Verify the event if you have an endpoint secret defined
-    if (process.env.STRIPE_ENDPOINT_SECRET) {
-      try {
-        event = this.stripeService.constructEvent(payload);
-      } catch (err) {
-        console.log('⚠️ Webhook signature verification failed.', err.message);
-        return;
-      }
-    } else {
-      event = payload;
-    }
-
-    // Handle the event
-    switch (event.type) {
-      case 'checkout.session.completed':
-        const checkout = event.data.object as Stripe.Checkout.Session;
-        // console.log(checkout);
-        const email = event.data.object.customer_details.email;
-        const emailSubject = 'Order Notification';
-        const emailBody = 'Your order has been placed successfully!';
-        await this.emailService.sendEmail(email, emailSubject, emailBody);
-        break;
-      default:
-        // Unexpected event type
-        console.log(`Unhandled event type ${event.type}.`);
-        break;
-    }
-
-    // Return a 200 response to acknowledge receipt of the event
-    return;
-  }
 }
