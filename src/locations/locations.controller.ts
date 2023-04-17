@@ -13,6 +13,18 @@ import {
 import { Review, Time } from './entity/locations.entity';
 import { LocationsService } from './locations.service';
 import { BookingsService } from 'src/bookings/bookings.service';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiQuery,
+} from '@nestjs/swagger'; // Import Swagger decorators
+import {
+  ReviewLocationDto,
+  CreateLocationDto,
+  UpdateLocationDto,
+} from './dto/locations.dto';
 
 function formatDate(dateString) {
   const date = new Date(dateString);
@@ -36,6 +48,7 @@ function formatDate(dateString) {
   return `${day} ${months[monthIndex]} ${year}`;
 }
 
+@ApiTags('Locations') // Add tags for the API group
 @Controller('locations')
 export class ReviewsController {
   constructor(
@@ -44,6 +57,10 @@ export class ReviewsController {
   ) {}
 
   @Post(':locationId/reviews')
+  @ApiOperation({ summary: 'Add review to location' })
+  @ApiResponse({ status: 201, description: 'Review added' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiBody({ type: ReviewLocationDto })
   async addReview(
     @Param('locationId') locationId: string,
     @Body('title') title: string,
@@ -72,6 +89,14 @@ export class ReviewsController {
     };
   }
 
+  @ApiOperation({ summary: 'Search for locations' }) // Add Swagger operation description
+  @ApiQuery({ name: 'location_name', required: false }) // Add Swagger query parameter description
+  @ApiQuery({ name: 'min_price', type: 'number', required: false }) // Add Swagger query parameter description
+  @ApiQuery({ name: 'max_price', type: 'number', required: false }) // Add Swagger query parameter description
+  @ApiQuery({ name: 'location_type', required: false }) // Add Swagger query parameter description
+  @ApiQuery({ name: 'location_function', required: false }) // Add Swagger query parameter description
+  @ApiResponse({ status: HttpStatus.OK, description: 'OK' }) // Add Swagger response description
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' }) // Add Swagger response description
   @Get('/search')
   async search(
     @Query('location_name') location_name: string,
@@ -109,6 +134,10 @@ export class ReviewsController {
   }
 
   @Post()
+  @ApiOperation({ summary: 'Create a new location' })
+  @ApiResponse({ status: 201, description: 'Location created' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiBody({ type: CreateLocationDto })
   async createLocation(
     @Body('providerId') providerId: string,
     @Body('name') name: string,
@@ -154,6 +183,9 @@ export class ReviewsController {
 
   //@desc Get all locations
   @Get()
+  @ApiOperation({ summary: 'Get all locations' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'OK' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   async getAllLocations() {
     const locations = await this.locationsService.getAllLocations();
     return locations;
@@ -161,12 +193,19 @@ export class ReviewsController {
 
   //@desc Get a single location by its id
   @Get(':locationId')
+  @ApiOperation({ summary: 'Get a location by its id' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'OK' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   async getLocation(@Param('locationId') locationId: string) {
     const location = await this.locationsService.getLocationById(locationId);
     return location;
   }
 
   @Put(':locationId')
+  @ApiOperation({ summary: 'Update a location' })
+  @ApiResponse({ status: 201, description: 'Location updated' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiBody({ type: UpdateLocationDto })
   async updateLocation(
     @Param('locationId') locationId: string,
     @Body('name') name: string,
@@ -213,12 +252,18 @@ export class ReviewsController {
   }
 
   @Delete(':locationId')
+  @ApiOperation({ summary: 'Delete a location' })
+  @ApiResponse({ status: 201, description: 'Location deleted' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
   async deleteLocation(@Param('locationId') locationId: string) {
     const location = await this.locationsService.deleteLocation(locationId);
     return location;
   }
 
   @Get(':locationId/bookings')
+  @ApiOperation({ summary: 'Get all bookings of a location' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'OK' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   async getUnavailableTimeslot(@Param('locationId') locationId: string) {
     const result = await this.bookingsService.getUnavailableTimeslot(
       locationId,
