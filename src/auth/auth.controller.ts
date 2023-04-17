@@ -23,6 +23,19 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtAuthService } from './jwt.service';
 import { RolesGuard } from './guards/roles.auth.guard';
 import { HistoryDevice } from 'src/customers/entities/customers.entity';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiConsumes,
+} from '@nestjs/swagger'; // Import Swagger decorators
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+import {
+  GeneratePasswordResetTokenDto,
+  UpdatePasswordUsingTokenDto,
+} from './dto/reset-password.dto';
 
 const deviceDetector = new DeviceDetector();
 function getDevice(headers: { 'user-agent': string }): string {
@@ -42,6 +55,7 @@ function getDevice(headers: { 'user-agent': string }): string {
   }
   return device;
 }
+@ApiTags('Auth') // Add tags for the API group
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -53,6 +67,10 @@ export class AuthController {
     private jwtAuthService: JwtAuthService,
   ) {}
   @Post('/register')
+  @ApiOperation({ summary: 'Register a user' })
+  @ApiResponse({ status: 201, description: 'User created' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiBody({ type: RegisterDto })
   async register(
     @Body('email') email: string,
     @Body('username') username: string,
@@ -102,6 +120,12 @@ export class AuthController {
   @UseGuards(RolesGuard)
   @SetMetadata('roles', [UserType.ADMIN, UserType.CUSTOMER, UserType.PROVIDER])
   @Post('/login')
+  @ApiOperation({ summary: 'Login a user' })
+  @ApiResponse({ status: 200, description: 'User logged in' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Not Found' })
+  @ApiBody({ type: LoginDto })
   async login(@Request() req) {
     let user: any;
     const { email, password } = req.body;
@@ -186,9 +210,15 @@ export class AuthController {
       msg: 'User logged in',
     };
   }
-  
+
   // generate password reset token
   @Post('/reset-password')
+  @ApiOperation({ summary: 'Generate password reset token' })
+  @ApiResponse({ status: 200, description: 'Password reset token generated' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 404, description: 'Not Found' })
+  @ApiConsumes('application/x-www-form-urlencoded') // Set the content type for the request body
+  @ApiBody({ type: GeneratePasswordResetTokenDto })
   async generatePasswordResetToken(@Body('email') email: string) {
     await this.authService.sendPasswordResetEmail(email);
     return {
@@ -198,6 +228,7 @@ export class AuthController {
 
   // validate password reset token
   @Get('/reset-password/:token')
+  @ApiOperation({ summary: 'Validate password reset token' })
   async validatePasswordResetToken(@Param('token') token: string) {
     const isValidToken = await this.authService.validatePasswordResetToken(
       token,
@@ -213,6 +244,12 @@ export class AuthController {
 
   // update password using token
   @Put('/reset-password/:token')
+  @ApiOperation({ summary: 'Update password using token' })
+  @ApiResponse({ status: 200, description: 'Password updated' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 404, description: 'Not Found' })
+  @ApiConsumes('application/x-www-form-urlencoded') // Set the content type for the request body
+  @ApiBody({ type: UpdatePasswordUsingTokenDto })
   async updatePasswordUsingToken(
     @Param('token') token: string,
     @Body('password') password: string,
