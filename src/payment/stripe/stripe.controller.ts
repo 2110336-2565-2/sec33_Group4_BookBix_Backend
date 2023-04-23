@@ -121,17 +121,7 @@ export class StripeController {
     @Body('name') name: string,
     @Body('description') description: string,
     @Body('price') unitAmount: number,
-    @Req() req: Request
   ) {
-    const jwtCookie = req.cookies['access_token'];
-    const payload = await this.jwtService.verify(jwtCookie);
-    const { id, username, type } = payload;
-
-    if (type !== UserType.PROVIDER) {
-      throw new ForbiddenException(
-        'Only providers can create a stripe account',
-      );
-    }
     const { product, price } = await this.stripeService.createProductAndPrice(
       name,
       description,
@@ -160,21 +150,11 @@ export class StripeController {
     @Body('percentOff') percentOff: number,
     @Body('maxRedemptions') maxRedemptions: number,
     @Body('locationName') locationName: string,
-    @Req() req: Request
   ): Promise<{
     statusCode: number;
     coupon: Stripe.Coupon;
     promotionCode: Stripe.PromotionCode;
   }> {
-    const jwtCookie = req.cookies['access_token'];
-    const payload = await this.jwtService.verify(jwtCookie);
-    const { id, username, type } = payload;
-
-    if (type !== UserType.PROVIDER) {
-      throw new ForbiddenException(
-        'Only providers can create a stripe account',
-      );
-    }
     const { coupon, promotionCode } = await this.stripeService.createCoupon(
       name,
       amountOff,
