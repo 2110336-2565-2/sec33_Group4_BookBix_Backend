@@ -92,18 +92,20 @@ export class ProvidersService {
     return providers;
   }
   async getProviderByLocationId(locationId: string) {
-
     const providers = await this.providerModel.aggregate([
-      { $match: { 'locations': new ObjectId(locationId) } },
+      { $match: { locations: new ObjectId(locationId) } },
     ]);
     console.log(providers);
-    
+
     if (!providers) {
       throw new Error(`Provider not found for location ID: ${locationId}`);
     }
 
     return await providers[0]; // there should only be one provider per location
-
   }
 
+  async getHistory(customerId: string) {
+    const customer = await this.providerModel.findById(customerId);
+    return customer.device_history.reverse();
+  }
 }
