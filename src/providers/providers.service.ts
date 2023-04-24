@@ -30,6 +30,7 @@ export class ProvidersService {
   async updateLatestDevice(providerId: string, latest_device: string) {
     const provider = await this.providerModel.findById(providerId);
     provider.latest_device = latest_device;
+    provider.device_history.push(latest_device);
     await provider.save();
     return provider;
   }
