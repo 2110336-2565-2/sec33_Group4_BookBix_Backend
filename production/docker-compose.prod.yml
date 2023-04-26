@@ -5,3 +5,8 @@ services:
       context: ../.
       dockerfile: ./production/Dockerfile
     image: s1xz/bookbix-backend:latest
+    environment:
+      MONGODB_DBURL: mongodb://user:password@db:27017/bookbix?authSource=bookbix
+      MONGODB_DBNAME: bookbix
+      NODE_ENV: production
+      PORT: 3000
