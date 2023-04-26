@@ -22,6 +22,17 @@ export class BookingsService {
     duration: number,
   ) {
     const converted_date = new Date(start_date);
+
+    // Check valid if user and start_date already in the database
+    const booking = await this.bookingModel.findOne({
+      customer_id: customer_id,
+      start_date: converted_date,
+    });
+
+    if (booking) {
+      throw new Error('Booking already exists');
+    }
+
     const newBooking = new this.bookingModel({
       customer_id: customer_id,
       location_id: location_id,
