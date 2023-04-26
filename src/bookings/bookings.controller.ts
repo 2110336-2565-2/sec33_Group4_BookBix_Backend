@@ -55,6 +55,7 @@ export class BookingsController {
         start_date,
         duration,
       );
+      res.status(HttpStatus.CREATED);
       return {
         msg: 'Booking successfully created',
         bookingId: result.id,
@@ -62,8 +63,8 @@ export class BookingsController {
         duration: duration,
       };
     } catch (err) {
+      res.status(HttpStatus.BAD_REQUEST);
       return {
-        status: 400,
         msg: 'Booking already exist',
       };
     }

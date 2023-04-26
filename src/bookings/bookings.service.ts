@@ -32,6 +32,7 @@ export class BookingsService {
     if (booking) {
       throw new Error('Booking already exists');
     }
+
     const newBooking = new this.bookingModel({
       customer_id: customer_id,
       location_id: location_id,
