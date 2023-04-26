@@ -8,10 +8,8 @@ import { JwtAuthService } from 'src/auth/jwt.service';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from 'src/auth/constants';
 import { LocationsModule } from 'src/locations/locations.module';
-import { BookingsService } from 'src/bookings/bookings.service';
-import { BookingsModule } from 'src/bookings/bookings.module';
 @Module({
-  imports: [BookingsModule,ConfigModule, ProvidersModule, LocationsModule,JwtModule.register({
+  imports: [ConfigModule, ProvidersModule, LocationsModule,JwtModule.register({
     secret: jwtConstants.secret,
     signOptions: { expiresIn: '60s' },
   })],

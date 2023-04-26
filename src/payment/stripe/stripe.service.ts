@@ -44,7 +44,7 @@ export class StripeService {
   }
 
 
-  async createCheckoutSession(priceId: string, connectedAccountId: string, hour: number, takeReceipt: boolean, bookingId:string): Promise<Stripe.Checkout.Session> {
+  async createCheckoutSession(priceId: string, connectedAccountId: string, hour: number, takeReceipt: boolean): Promise<Stripe.Checkout.Session> {
 
     const price = await this.stripe.prices.retrieve(priceId);
     const applicationFeeAmount = hour * Math.round(price.unit_amount * 0.1); // calculate 10% of the total price
@@ -57,9 +57,6 @@ export class StripeService {
         application_fee_amount: applicationFeeAmount,
         transfer_data: { destination: connectedAccountId },
         receipt_email: takeReceipt? email:"se.db.group4@gmail.com",
-      },
-      metadata: {
-        bookingId: bookingId, // Add the booking ID to the metadata
       },
       success_url: 'http://localhost:3000/me/bookings',
       cancel_url: 'http://localhost:3000/me/bookings',
