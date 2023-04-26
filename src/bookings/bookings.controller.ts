@@ -49,7 +49,6 @@ export class BookingsController {
     @Body('duration') duration: number,
   ) {
     try {
-      res.status(HttpStatus.CREATED);
       const result = await this.bookingsService.createBooking(
         customer_id,
         location_id,
@@ -63,10 +62,9 @@ export class BookingsController {
         duration: duration,
       };
     } catch (err) {
-      // Set status
-      res.status(HttpStatus.BAD_REQUEST);
       return {
-        msg: 'Booking already exists',
+        status: 400,
+        msg: 'Booking already exist',
       };
     }
   }
