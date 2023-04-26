@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel, Schema } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { CustomersService } from 'src/customers/customers.service';
@@ -141,5 +141,14 @@ export class BookingsService {
       });
     }
     return formattedBookings;
+  }
+
+  async updateBookingStatus(bookingId: string, newStatus: string): Promise<Booking> {
+    const booking = await this.bookingModel.findById(bookingId);
+    if (!booking) {
+      throw new NotFoundException(`Booking with id ${bookingId} not found`);
+    }
+    booking.status = newStatus;
+    return booking.save();
   }
 }
