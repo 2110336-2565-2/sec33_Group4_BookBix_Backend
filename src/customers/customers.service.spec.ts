@@ -74,10 +74,11 @@ describe('CustomersService', () => {
         password: 'password',
         email: 'johndoe@example.com',
         date_created: new Date(),
+        device_history: [],
       };
       const newCustomer = {
         ...createCustomerDto,
-        _id: '123',
+        _id: '000000000001000000000005',
       };
       customerModelMock.save.mockResolvedValue(newCustomer);
 
@@ -85,13 +86,14 @@ describe('CustomersService', () => {
 
       expect(customerModelMock.create).toHaveBeenCalledWith(createCustomerDto);
       expect(customerModelMock.save).toHaveBeenCalled();
+      console.log("============================\n",customerModelMock.create)
       expect(result).toEqual(newCustomer);
     });
   });
 
   describe('updateLatestDevice', () => {
     it('should update latest device and device history', async () => {
-      const customerId = '123';
+      const customerId = '000000000001000000000005';
       const latest_device = 'iPhone 13';
       const device_history: HistoryDevice = 
         {
@@ -209,16 +211,15 @@ describe('CustomersService', () => {
     });
 
     it('should update the customer information', async () => {
-      const customerID = "123";
+      const customerID = "000000000001000000000005";
       
       const result = await service.updateInformation(customerID, "Charnkij", "Suksuwanveeree", "Male", "1967-12-25", "hammyonlyone@gg.com");
 
       expect(customerModelMock.findById).toHaveBeenCalledWith(customerID);
-      expect(customer.firstname).toBe("Charnkij");
-      expect(customer.lastname).toBe("Suksuwanveeree");
+      expect(result.firstname).toBe("Charnkij");
+      expect(result.lastname).toBe("Suksuwanveeree");
       
     });
   })
-  
   
 });
