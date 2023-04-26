@@ -36,6 +36,7 @@ import {
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { CreateCheckoutSessionDto } from './dto/create-checkout-session.dto';
+import { BookingsService } from 'src/bookings/bookings.service';
 
 @ApiTags('Stripe') // Add tags for the API group
 @Controller('stripe')
@@ -46,8 +47,8 @@ export class StripeController {
     private readonly jwtAuthService: JwtAuthService,
     private readonly jwtService: JwtService,
     private readonly locationsService: LocationsService,
-    private readonly emailService: EmailService,
-  ) {}
+    private readonly bookingsService: BookingsService,
+  ) { }
 
   @Post('create-provider-account')
   @ApiOperation({ summary: 'Create a Stripe account for a provider' })
@@ -121,6 +122,7 @@ export class StripeController {
     @Body('location_id') location_id: string,
     @Body('quantity') quantity: number,
     @Body('takeReceipt') takeReceipt: boolean,
+    @Body('booking_id') booking_id: string,
   ): Promise<{ url: string }> {
     const provider = await this.providersService.getProviderByLocationId(
       location_id,
@@ -132,6 +134,7 @@ export class StripeController {
       provider.stripe_account_id,
       quantity,
       takeReceipt,
+      booking_id
     );
 
     return { url: session.url };
@@ -250,5 +253,34 @@ export class StripeController {
       coupon,
       promotionCode,
     };
+  }
+  @Post('webhook')
+  async handleStripeWebhook(@Body() event: Stripe.Event) {
+    try {
+      switch (event.type) {
+        case 'checkout.session.completed':
+          const checkoutSession = event.data.object as Stripe.Checkout.Session;
+          // Retrieve the booking ID from the metadata
+          const bookingId = checkoutSession.metadata.bookingId;
+          // Update the booking status to "paid"
+          await this.bookingsService.updateBookingStatus(bookingId, 'paid');
+          break;
+        case 'checkout.session.cancelled':
+          const cancelledSession = event.data.object as Stripe.Checkout.Session;
+          // Retrieve the booking ID from the metadata
+          const cancelledBookingId = cancelledSession.metadata.bookingId;
+          // Update the booking status to "cancelled"
+          await this.bookingsService.updateBookingStatus(cancelledBookingId, 'cancelled');
+          break;
+        default:
+          // Handle other webhook events here
+          break;
+      }
+    } catch (err) {
+      console.error(err);
+      return { statusCode: 500, message: 'Internal server error' };
+    }
+
+    return { statusCode: 200, message: 'OK' };
   }
 }

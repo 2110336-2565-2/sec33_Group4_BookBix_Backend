@@ -11,6 +11,7 @@ db.providers.insertMany([
       ObjectId('000000000004000000000002'),
     ],
     stripe_account_id: 'acct_1Msp19Q6hJlrjKYC',
+    device_history: ['WINDOWS - CHROME - 192.168.0.1'],
   },
   {
     _id: ObjectId('000000000002000000000002'),
@@ -21,6 +22,7 @@ db.providers.insertMany([
     organization_name: 'Provider Co.',
     locations: [ObjectId('000000000004000000000003')],
     stripe_account_id: 'acct_1Msp63Q3c3AKfNRa',
+    device_history: ['WINDOWS - CHROME - 192.168.0.1'],
   },
   {
     _id: ObjectId('000000000002000000000003'),
@@ -31,6 +33,7 @@ db.providers.insertMany([
     organization_name: 'Provider LLC',
     locations: [ObjectId('000000000004000000000004')],
     stripe_account_id: 'acct_1MsoqgPqkVkOUZkn',
+    device_history: ['WINDOWS - CHROME - 192.168.0.1'],
   },
   
 ]);
