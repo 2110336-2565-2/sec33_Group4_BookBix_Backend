@@ -133,7 +133,7 @@ describe('CustomersService', () => {
     it('should return customer by email', async () => {
       const email = 'johndoe@example.com';
       const customer = {
-        _id: '123',
+        _id: '000000000001000000000005',
         email,
       };
       customerModelMock.findOne.mockResolvedValue(customer);
@@ -148,7 +148,7 @@ describe('CustomersService', () => {
       expect(result2).toEqual(customer);
     });
     it('should return customer by id', async () => {
-      const id = '123';
+      const id = '000000000001000000000005';
       const customer = {
         _id: id,
         email: 'jew@gmail.com'
@@ -163,9 +163,9 @@ describe('CustomersService', () => {
   });
   describe('getHistory', () => {
     it('should return the device history of the customer', async () => {
-      const customerId = '123';
+      const customerId = '000000000001000000000005';
       const customer = new CustomerModel ({
-        _id: '123',
+        _id: '000000000001000000000005',
         firstname: 'John',
         lastname: 'Doe',
         sex: 'M',
@@ -187,7 +187,7 @@ describe('CustomersService', () => {
     });
   
     it('should return an empty array if the customer does not exist', async () => {
-      const customerId = '123';
+      const customerId = '000000000001000000000005';
   
       jest.spyOn(CustomerModel, 'findById').mockResolvedValue(null);
   
