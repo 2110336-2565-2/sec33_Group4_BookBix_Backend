@@ -143,6 +143,7 @@ export class BookingsService {
           booking._id.toString().slice(3, 5),
         location_name: (await locationObj).name,
         location_id: booking.location_id,
+        booking_id: booking._id,
         price: (await locationObj).price,
         period: {
           start: startDateString,
@@ -154,7 +155,10 @@ export class BookingsService {
     return formattedBookings;
   }
 
-  async updateBookingStatus(bookingId: string, newStatus: string): Promise<Booking> {
+  async updateBookingStatus(
+    bookingId: string,
+    newStatus: string,
+  ): Promise<Booking> {
     const booking = await this.bookingModel.findById(bookingId);
     if (!booking) {
       throw new NotFoundException(`Booking with id ${bookingId} not found`);
