@@ -6,7 +6,7 @@ import {
   ApiResponse,
   ApiBody,
   ApiQuery,
-} from '@nestjs/swagger'; // Import Swagger decorators
+} from '@nestjs/swagger'; // Import Swagger decorators\
 import { CreateBookingDto } from './dto/bookings.dto';
 
 @ApiTags('Bookings') // Add tags for the API group
@@ -36,17 +36,24 @@ export class BookingsController {
     @Body('start_date') start_date: string,
     @Body('duration') duration: number,
   ) {
-    const result = await this.bookingsService.createBooking(
-      customer_id,
-      location_id,
-      start_date,
-      duration,
-    );
-    return {
-      msg: 'Booking successfully created',
-      bookingId: result.id,
-      locationId: location_id,
-      duration: duration,
-    };
+    try {
+      const result = await this.bookingsService.createBooking(
+        customer_id,
+        location_id,
+        start_date,
+        duration,
+      );
+      return {
+        msg: 'Booking successfully created',
+        bookingId: result.id,
+        locationId: location_id,
+        duration: duration,
+      };
+    } catch (err) {
+      return {
+        status: 400,
+        msg: 'Booking already exist',
+      };
+    }
   }
 }
