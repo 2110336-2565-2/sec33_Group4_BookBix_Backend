@@ -1,5 +1,16 @@
-import { Body, Controller, Get, Post, Request, Param } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  Param,
+  HttpException,
+  HttpStatus,
+  Res,
+} from '@nestjs/common';
 import { BookingsService } from './bookings.service';
+import { Response } from 'express';
 import {
   ApiTags,
   ApiOperation,
@@ -31,12 +42,14 @@ export class BookingsController {
   @ApiBody({ type: CreateBookingDto })
   async createBooking(
     @Request() req,
+    @Res({ passthrough: true }) res: Response,
     @Body('customer_id') customer_id: string,
     @Body('location_id') location_id: string,
     @Body('start_date') start_date: string,
     @Body('duration') duration: number,
   ) {
     try {
+      res.status(HttpStatus.CREATED);
       const result = await this.bookingsService.createBooking(
         customer_id,
         location_id,
@@ -50,9 +63,10 @@ export class BookingsController {
         duration: duration,
       };
     } catch (err) {
+      // Set status
+      res.status(HttpStatus.BAD_REQUEST);
       return {
-        status: 400,
-        msg: 'Booking already exist',
+        msg: 'Booking already exists',
       };
     }
   }
