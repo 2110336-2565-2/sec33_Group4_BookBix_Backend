@@ -263,7 +263,7 @@ export class StripeController {
           // Retrieve the booking ID from the metadata
           const bookingId = checkoutSession.metadata.bookingId;
           // Update the booking status to "paid"
-          await this.bookingsService.updateBookingStatus(bookingId, 'paid');
+          await this.bookingsService.updateBookingStatus(bookingId, 'confirmed');
           break;
         case 'checkout.session.cancelled':
           const cancelledSession = event.data.object as Stripe.Checkout.Session;
