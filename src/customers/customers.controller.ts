@@ -15,7 +15,7 @@ import { CustomersService } from './customers.service';
 import DeviceDetector = require('device-detector-js');
 import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from '../auth/constants';
-import { JwtAuthService } from 'src/auth/jwt.service';
+// import { JwtAuthService } from 'src/auth/jwt.service';
 import {
   ApiTags,
   ApiOperation,
@@ -31,7 +31,7 @@ export class CustomersController {
   constructor(
     private readonly customerService: CustomersService,
     private jwtService: JwtService,
-    private jwtAuthService: JwtAuthService,
+    // private jwtAuthService: JwtAuthService,
   ) {}
 
   @Put('/update/:id')
